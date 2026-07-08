@@ -1,0 +1,7 @@
+{
+  "schema": "mochion.activity.v1",
+  "status": "under_construction",
+  "note": "Activity pipeline not yet live. Schema documented in /docs/telemetry.md.",
+  "generated_at": null,
+  "weekly": []
+}

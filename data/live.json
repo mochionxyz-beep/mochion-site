@@ -1,0 +1,8 @@
+{
+  "schema": "mochion.telemetry.v1",
+  "status": "under_construction",
+  "note": "Telemetry pipeline not yet live. Schema documented in /docs/telemetry.md.",
+  "generated_at": null,
+  "live_since": null,
+  "equity_curve": {"unit": "index", "points": []}
+}

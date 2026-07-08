@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Build log — Mochion</title>
+  <meta name="description" content="What broke, what got fixed, and why — the honest build log of the Mochion trading system.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="issue">
+
+  <header class="masthead">
+    <a class="brand" href="/">Mochion <span class="pron">(moh-chee-on)</span></a>
+    <nav>
+      <a href="/">Issue #0</a>
+      <a href="/log.html" aria-current="page">Build log</a>
+      <a href="/roadmap.html">Roadmap</a>
+      <a class="handle" href="https://x.com/mochionhq" rel="me">@mochionhq</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" style="padding-bottom:8px">
+      <h1>The build log</h1>
+      <p class="lede">What broke, what got fixed, and why. Reverse-chronological, no varnish.</p>
+    </section>
+
+    <figure class="panel panel--dark tape">
+      <div class="panel__cap">Project activity · commits &amp; lines changed across the private repos</div>
+      <img src="data/activity.svg" width="800" height="240" alt="Commit and lines-of-code activity panel — under construction" loading="lazy">
+    </figure>
+
+    <div class="halftone" aria-hidden="true"></div>
+
+    <article class="entry">
+      <time datetime="2026-07-08">2026-07-08</time>
+      <h2>Our own README was lying to us</h2>
+      <div class="caption">
+        <span class="kicker">What broke</span>
+        A documentation audit found the position-manager README claiming the service does
+        market-only execution and has no reconciliation. Both claims are false — it has limit
+        entry <b>and</b> a reconcile worker. The docs had drifted behind the code, which is
+        how you end up confidently telling people wrong things about your own system.
+      </div>
+      <div class="caption">
+        <span class="kicker">The fix</span>
+        Treat docs drift like a bug class, not an accident: the public description of the system
+        now comes from one audited source of truth, and README claims get checked against the
+        code before they're repeated anywhere — including on this site.
+      </div>
+    </article>
+
+    <article class="entry">
+      <time datetime="2026-07-08">2026-07-08</time>
+      <h2>35 tests fail because the test suite phones home</h2>
+      <div class="caption">
+        <span class="kicker">What broke</span>
+        The position-manager suite has 35 failures with one root cause: constructing the
+        Hyperliquid exchange adapter fetches <b>live metadata from the real API</b> — inside
+        unit tests. Works on a good network day, flakes on CI, and couples test results to
+        someone else's uptime.
+      </div>
+      <div class="caption">
+        <span class="kicker">The fix (in progress)</span>
+        The same seam pattern that already works in the carry-signal service: route the
+        network call through one injectable function, stub it in tests, and let CI run
+        fully offline. Boring, proven, and it makes the suite deterministic again.
+      </div>
+    </article>
+
+    <section class="follow">
+      <a class="btn-follow" href="https://x.com/mochionhq">Follow @mochionhq</a>
+    </section>
+  </main>
+
+  <footer class="indicia">
+    <p><strong>Mochion</strong> (moh-chee-on) · an engineering research project</p>
+    <p>Not a fund. Nothing here is a solicitation, an offer, or investment advice.</p>
+    <p>© 2026 · <a href="https://x.com/mochionhq" style="color:var(--matcha)">@mochionhq</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

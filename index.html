@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mochion — systematic crypto trading, documented like a comic book</title>
+  <meta name="description" content="Mochion (moh-chee-on) is a personal systematic crypto trading system, built and documented in the open — engineering build log, honest failures, and in time, the live tape.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+  <meta property="og:title" content="Mochion">
+  <meta property="og:description" content="A systematic crypto trading system, built and documented in the open.">
+  <meta property="og:image" content="assets/og-avatar.png">
+  <meta property="og:type" content="website">
+</head>
+<body>
+<div class="issue">
+
+  <header class="masthead">
+    <a class="brand" href="/">Mochion <span class="pron">(moh-chee-on)</span></a>
+    <nav>
+      <a href="/" aria-current="page">Issue #0</a>
+      <a href="/log.html">Build log</a>
+      <a href="/roadmap.html">Roadmap</a>
+      <a class="handle" href="https://x.com/mochionhq" rel="me">@mochionhq</a>
+    </nav>
+  </header>
+
+  <a class="ticker" href="https://x.com/mochionhq" aria-label="Follow the build on X">
+    <span>THE PIPELINE IS RUNNING &nbsp;·&nbsp; WALK-FORWARD VALIDATED &nbsp;·&nbsp; KILL-SWITCH ARMED &nbsp;·&nbsp; VOL-TARGETED &nbsp;·&nbsp; WHAT BROKE THIS WEEK → &nbsp;·&nbsp; BUILT AND DOCUMENTED IN THE OPEN &nbsp;·&nbsp; MOH-CHEE-ON &nbsp;·&nbsp; DEFLATED SHARPE OR IT DIDN'T HAPPEN &nbsp;·&nbsp; THE PIPELINE IS RUNNING &nbsp;·&nbsp; WALK-FORWARD VALIDATED &nbsp;·&nbsp; KILL-SWITCH ARMED &nbsp;·&nbsp; VOL-TARGETED &nbsp;·&nbsp; WHAT BROKE THIS WEEK → &nbsp;·&nbsp; BUILT AND DOCUMENTED IN THE OPEN &nbsp;·&nbsp; MOH-CHEE-ON &nbsp;·&nbsp; DEFLATED SHARPE OR IT DIDN'T HAPPEN</span>
+  </a>
+
+  <main>
+    <!-- 1 · Cover -->
+    <section class="hero">
+      <div class="mascot-wrap">
+        <img class="mascot" src="assets/mascot-hero.webp" alt="The Mochion mascot: a cheerful three-ball dango in 1930s rubber-hose cartoon style, waving with a bamboo cane" width="300" height="408">
+        <svg class="note-float" viewBox="0 0 34 34" aria-hidden="true"><g fill="currentColor"><ellipse cx="9" cy="26" rx="6" ry="4.5"/><path d="M14,26 L14,6 Q20,7 23,12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></g></svg>
+      </div>
+      <h1>A systematic crypto trading system, <br>built and documented in the open.</h1>
+      <p class="lede">One person, four Python services, two exchanges — and a little mochi
+         who narrates the whole thing. This is the build log of a real trading machine,
+         drawn like it's 1934.</p>
+      <p class="bubble">The pipeline is running.</p>
+      <div class="disclaimer">
+        <strong>An engineering project, not a fund.</strong> Nothing on this site is a solicitation
+        or investment advice. It documents a personal system, honestly — including when it breaks.
+      </div>
+    </section>
+
+    <div class="halftone" aria-hidden="true"></div>
+
+    <!-- 2 · What it is -->
+    <section class="row" id="what">
+      <figure class="panel panel--art">
+        <div class="panel__cap">Panel 1 · The operation</div>
+        <img src="assets/scenes/scene-06-desk.webp" srcset="assets/scenes/scene-06-desk-480.webp 480w, assets/scenes/scene-06-desk.webp 800w" sizes="(min-width: 720px) 430px, 94vw" width="800" height="800" alt="The mascot sipping tea at a tiny 1930s control desk with a vintage monitor showing a rising chart and a brass ticker-tape machine" loading="lazy">
+      </figure>
+      <div class="copy">
+        <h2>What Mochion is</h2>
+        <p>A personal, systematic crypto trading operation: a pipeline of Python services that
+           run and monitor strategies on perpetual futures across Bybit and Hyperliquid, with
+           institutional-style risk management and a paper trail for everything.</p>
+        <p class="sub">The mascot is soft. The process is not.</p>
+      </div>
+    </section>
+
+    <!-- 3 · How it works -->
+    <section id="how">
+      <div class="copy" style="text-align:center"><h2>How the machine fits together</h2></div>
+      <div class="caption"><span class="kicker">Portfolio analytics</span>
+        A monitoring dashboard with a statistical kill-switch engine: Monte-Carlo envelopes and
+        distribution tests that grade each strategy <b>STABLE, UNLUCKY, DRIFTING, or BROKEN</b> —
+        so retiring an edge is a measurement, not a mood.</div>
+      <div class="caption"><span class="kicker">Position manager</span>
+        FastAPI middleware between signals and exchanges: deduplication, retries with backoff,
+        market and limit entry, a reconcile worker, and alerts when reality and the book disagree.</div>
+      <div class="caption"><span class="kicker">Carry signal</span>
+        A funding-rate signal service for Hyperliquid cash-and-carry — approve-to-fire only;
+        no trade happens without a human pressing the button.</div>
+      <div class="caption"><span class="kicker">Backtester</span>
+        Offline research and tuning for the carry rule — walk-forward, Deflated Sharpe,
+        vol-targeted sizing. The boring part that keeps the rest honest.</div>
+    </section>
+
+    <div class="halftone" aria-hidden="true"></div>
+
+    <!-- 4 · When it breaks -->
+    <section class="row row--flip" id="breaks">
+      <figure class="panel panel--art">
+        <div class="panel__cap">Panel 2 · Red days exist</div>
+        <img src="assets/scenes/expr-determined.webp" width="480" height="721" alt="The mascot with a determined, grumpy expression" loading="lazy">
+      </figure>
+      <div class="copy">
+        <h2>When it breaks, you'll read about it</h2>
+        <p>Most trading pages show you the wins. This one documents the failures on purpose:
+           flaky tests, drift between docs and code, strategies that stop working and get
+           retired by the numbers. The honest version is the interesting version.</p>
+        <p class="sub">Fresh failures ship to the <a href="/log.html" style="color:var(--matcha)">build log</a>.</p>
+      </div>
+    </section>
+
+    <!-- 5 · Risk discipline -->
+    <section class="row" id="risk">
+      <figure class="panel panel--art">
+        <div class="panel__cap">Panel 3 · Weather happens</div>
+        <img src="assets/scenes/scene-02-umbrella.webp" srcset="assets/scenes/scene-02-umbrella-480.webp 480w, assets/scenes/scene-02-umbrella.webp 800w" sizes="(min-width: 720px) 430px, 94vw" width="800" height="800" alt="The mascot strolling with a big umbrella through the countryside" loading="lazy">
+      </figure>
+      <div class="copy">
+        <h2>Risk is the product</h2>
+        <p>Volatility-targeted sizing, statistical kill-switches, regime attribution, and
+           reconciliation between what the system thinks and what the exchange says.
+           The machine is built to survive weather, not to predict sunshine.</p>
+      </div>
+    </section>
+
+    <div class="halftone" aria-hidden="true"></div>
+
+    <!-- 6 · The Tape -->
+    <section id="tape">
+      <div class="copy" style="text-align:center"><h2>The Tape</h2></div>
+      <figure class="panel panel--dark tape">
+        <div class="panel__cap">Live telemetry · updated hourly once the pipeline ships</div>
+        <img src="data/stats.svg" width="800" height="360" alt="Live system telemetry panel — under construction" loading="lazy">
+      </figure>
+      <div class="caption">
+        <span class="kicker">How to read this</span>
+        This panel will show the live system's own numbers — equity curve, drawdown, uptime —
+        exported straight from the machine every hour, warts and all. It is a work log, not a
+        résumé: early history is a small sample and says little. Past performance isn't a promise
+        of anything.
+      </div>
+    </section>
+
+    <!-- 7 · Progress -->
+    <section class="row row--flip" id="progress">
+      <figure class="panel panel--art">
+        <div class="panel__cap">Panel 4 · Onward</div>
+        <img src="assets/scenes/scene-03c-pennyfarthing-tall.webp" srcset="assets/scenes/scene-03c-pennyfarthing-tall-480.webp 480w, assets/scenes/scene-03c-pennyfarthing-tall.webp 800w" sizes="(min-width: 720px) 430px, 94vw" width="800" height="800" alt="The mascot riding a penny-farthing bicycle" loading="lazy">
+      </figure>
+      <div class="copy">
+        <h2>The story continues</h2>
+        <p>Mochion ships in public: build notes, telemetry, and the occasional milestone.
+           Where it's headed next lives on the roadmap.</p>
+        <p class="sub"><a href="/roadmap.html" style="color:var(--matcha)">Read the roadmap →</a></p>
+      </div>
+    </section>
+
+    <!-- 8 · Follow -->
+    <section class="follow">
+      <p class="bubble">Follow the build — the little machine posts its own progress.</p>
+      <br>
+      <a class="btn-follow" href="https://x.com/mochionhq">Follow @mochionhq</a>
+    </section>
+  </main>
+
+  <footer class="indicia">
+    <p><strong>Mochion</strong> (moh-chee-on) · an engineering research project</p>
+    <p>Not a fund. Nothing here is a solicitation, an offer, or investment advice.
+       Live data, when shown, is an unaudited work log with a short history. Past performance
+       doesn't predict anything.</p>
+    <p>© 2026 · drawn in the style of 1934 · <a href="https://x.com/mochionhq" style="color:var(--matcha)">@mochionhq</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

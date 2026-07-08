@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <!-- Mochion mascot — vector master. Layers: shadow, legs, arms, body, face; optional wardrobe: #acc-bowler, #acc-cane (visibility) -->
+  <defs>
+    <clipPath id="mouthClip">
+      <path d="M424,316 Q500,356 576,316 Q566,376 500,380 Q434,376 424,316 Z"/>
+    </clipPath>
+    <filter id="haloBlur" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+
+  <!-- ground shadow -->
+  <ellipse cx="505" cy="932" rx="205" ry="22" fill="#26201C" opacity="0.10"/>
+
+  <!-- fx: soft halation for dark backgrounds (hidden by default) -->
+  <g id="fx-halo" visibility="hidden" filter="url(#haloBlur)" opacity="0.5">
+    <ellipse cx="500" cy="672" rx="182" ry="154" fill="#FFF6E0"/>
+    <ellipse cx="500" cy="478" rx="170" ry="148" fill="#FFF6E0"/>
+    <ellipse cx="500" cy="272" rx="170" ry="154" fill="#FFF6E0"/>
+  </g>
+
+  <!-- legs + shoes -->
+  <path d="M455,795 L443,866" stroke="#26201C" stroke-width="17" stroke-linecap="round" fill="none"/>
+  <path d="M548,795 L559,863" stroke="#26201C" stroke-width="17" stroke-linecap="round" fill="none"/>
+  <g>
+    <path d="M382,903 Q379,870 416,864 Q464,858 476,884 Q484,903 474,910 Q434,920 396,914 Q384,911 382,903 Z" fill="#33291F" stroke="#26201C" stroke-width="7"/>
+    <path d="M622,901 Q626,868 588,862 Q541,857 528,882 Q520,901 530,908 Q570,918 608,912 Q620,909 622,901 Z" fill="#33291F" stroke="#26201C" stroke-width="7"/>
+    <ellipse cx="416" cy="882" rx="15" ry="6.5" fill="#8B8175" opacity="0.5"/>
+    <ellipse cx="588" cy="880" rx="15" ry="6.5" fill="#8B8175" opacity="0.5"/>
+  </g>
+
+  <!-- right arm: hose to hip fist -->
+  <path d="M638,455 C692,472 700,514 666,550" stroke="#26201C" stroke-width="17" stroke-linecap="round" fill="none"/>
+  <g>
+    <circle cx="654" cy="566" r="32" fill="#FAF4E8" stroke="#26201C" stroke-width="7"/>
+    <path d="M634,549 Q641,543 648,548 M649,543 Q656,537 663,543 M664,545 Q671,541 676,547" stroke="#26201C" stroke-width="5" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- left arm: hose up to open wave glove -->
+  <path d="M364,440 C300,430 260,382 256,320" stroke="#26201C" stroke-width="17" stroke-linecap="round" fill="none"/>
+  <g transform="translate(252,278) rotate(-8)">
+    <g fill="#FAF4E8" stroke="#26201C" stroke-width="6.5">
+      <rect x="-15" y="-98" width="30" height="106" rx="15" transform="rotate(-16 0 8)"/>
+      <rect x="-15" y="-106" width="30" height="114" rx="15" transform="rotate(-5 0 8)"/>
+      <rect x="-15" y="-100" width="30" height="108" rx="15" transform="rotate(7 0 8)"/>
+      <rect x="-15" y="-88" width="30" height="96" rx="15" transform="rotate(19 0 8)"/>
+      <rect x="-13" y="-64" width="26" height="72" rx="13" transform="rotate(58 0 8)"/>
+      <circle cx="0" cy="16" r="34"/>
+    </g>
+    <path d="M-24,44 Q0,53 24,44" stroke="#26201C" stroke-width="6" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- body: green, cream, head -->
+  <g stroke="#26201C" stroke-width="8">
+    <ellipse cx="500" cy="672" rx="164" ry="139" fill="#ABAD66"/>
+    <path d="M368,714 Q500,784 632,714 Q602,790 500,796 Q398,790 368,714 Z" fill="#8F9150" opacity="0.5" stroke="none"/>
+    <ellipse cx="500" cy="478" rx="153" ry="132" fill="#F5E6CF"/>
+    <path d="M378,518 Q500,586 622,518 Q596,596 500,601 Q404,596 378,518 Z" fill="#E6D2B4" opacity="0.55" stroke="none"/>
+    <ellipse cx="500" cy="272" rx="153" ry="139" fill="#F0B5AB"/>
+    <path d="M378,314 Q500,390 622,314 Q596,398 500,403 Q404,398 378,314 Z" fill="#E4958B" opacity="0.55" stroke="none"/>
+  </g>
+
+  <!-- powder specks -->
+  <g fill="#FFFFFF" opacity="0.32">
+    <circle cx="424" cy="196" r="4"/><circle cx="452" cy="172" r="3"/><circle cx="560" cy="180" r="3.5"/><circle cx="590" cy="212" r="2.5"/>
+    <circle cx="430" cy="420" r="3.5"/><circle cx="548" cy="408" r="3"/><circle cx="582" cy="440" r="2.5"/>
+    <circle cx="412" cy="610" r="3.5"/><circle cx="470" cy="590" r="2.5"/><circle cx="574" cy="600" r="3"/><circle cx="608" cy="640" r="2.5"/>
+  </g>
+
+  <!-- face -->
+  <g>
+    <ellipse cx="456" cy="254" rx="28" ry="38" fill="#1D1815"/>
+    <ellipse cx="447" cy="237" rx="10.5" ry="14.5" fill="#FFFFFF"/>
+    <circle cx="465" cy="275" r="4" fill="#FFFFFF" opacity="0.85"/>
+    <ellipse cx="572" cy="254" rx="28" ry="38" fill="#1D1815"/>
+    <ellipse cx="563" cy="237" rx="10.5" ry="14.5" fill="#FFFFFF"/>
+    <circle cx="581" cy="275" r="4" fill="#FFFFFF" opacity="0.85"/>
+    <ellipse cx="392" cy="306" rx="25" ry="15" fill="#E1877C" opacity="0.75" transform="rotate(-6 392 306)"/>
+    <ellipse cx="620" cy="306" rx="25" ry="15" fill="#E1877C" opacity="0.75" transform="rotate(6 620 306)"/>
+    <path d="M424,316 Q500,356 576,316 Q566,376 500,380 Q434,376 424,316 Z" fill="#3A1F1E" stroke="#26201C" stroke-width="7" stroke-linejoin="round"/>
+    <g clip-path="url(#mouthClip)">
+      <ellipse cx="500" cy="373" rx="36" ry="14" fill="#D4776B"/>
+    </g>
+  </g>
+
+  <!-- wardrobe: square-crown bowler (hidden by default) -->
+  <g id="acc-bowler" visibility="hidden" transform="rotate(9 560 150)">
+    <path d="M488,152 L494,84 Q560,68 626,84 L632,152 Z" fill="#26201C"/>
+    <path d="M492,120 L628,120 L630,140 L490,140 Z" fill="#8FBC5A"/>
+    <ellipse cx="560" cy="152" rx="96" ry="18" fill="#26201C"/>
+    <ellipse cx="530" cy="92" rx="14" ry="7" fill="#FFFFFF" opacity="0.25" transform="rotate(-14 530 92)"/>
+  </g>
+
+  <!-- wardrobe: bamboo cane (hidden by default) -->
+  <g id="acc-cane" visibility="hidden">
+    <path d="M668,600 L692,922" stroke="#C9A36B" stroke-width="13" stroke-linecap="round"/>
+    <path d="M668,600 L692,922" stroke="#26201C" stroke-width="13" stroke-linecap="round" opacity="0.18"/>
+    <path d="M674,676 l14,-1 M679,748 l14,-1 M684,822 l13,-1" stroke="#8A6B3F" stroke-width="4" stroke-linecap="round"/>
+  </g>
+</svg>

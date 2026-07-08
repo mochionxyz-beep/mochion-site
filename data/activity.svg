@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 240" role="img" aria-label="Activity panel — under construction">
+  <defs>
+    <pattern id="dots" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.1" fill="#26201C" opacity="0.12"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="240" fill="#E9DFC9"/>
+  <rect width="800" height="240" fill="url(#dots)"/>
+  <rect x="10" y="10" width="780" height="220" fill="none" stroke="#141414" stroke-width="4"/>
+  <g transform="translate(400,96)" text-anchor="middle">
+    <text font-family="-apple-system, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#26201C">ACTIVITY FEED — UNDER CONSTRUCTION</text>
+    <text y="30" font-family="-apple-system, Helvetica, sans-serif" font-size="16" fill="#6b6355">commits &amp; lines changed across the private repos · proof the machine is being built</text>
+  </g>
+  <g transform="translate(310,170)" fill="#9DBB72" opacity="0.8">
+    <rect x="0" y="-18" width="16" height="18" stroke="#141414" stroke-width="2.5"/>
+    <rect x="26" y="-30" width="16" height="30" stroke="#141414" stroke-width="2.5"/>
+    <rect x="52" y="-10" width="16" height="10" stroke="#141414" stroke-width="2.5"/>
+    <rect x="78" y="-38" width="16" height="38" stroke="#141414" stroke-width="2.5"/>
+    <rect x="104" y="-24" width="16" height="24" stroke="#141414" stroke-width="2.5"/>
+    <rect x="130" y="-44" width="16" height="44" stroke="#141414" stroke-width="2.5"/>
+    <rect x="156" y="-14" width="16" height="14" stroke="#141414" stroke-width="2.5"/>
+  </g>
+</svg>

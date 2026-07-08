@@ -1,0 +1,21 @@
+# dependencies / build
+node_modules/
+dist/
+.cache/
+
+# secrets & local infra — NEVER commit
+.env
+.env.*
+*.pem
+.aws/
+aws-exports.js
+**/credentials
+terraform.tfstate*
+.terraform/
+
+# os / editor
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
