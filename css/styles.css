@@ -140,11 +140,17 @@ header.masthead{position:relative;display:flex;justify-content:space-between;ali
 @media(min-width:720px){.brandmark{height:30px}}
 
 /* comic COVER hero */
-.cover{position:relative;max-width:400px;margin:20px auto 6px;line-height:0;overflow:visible;
-  border:var(--bw) solid var(--outline);box-shadow:8px 9px 0 rgba(26,19,12,.32);background:#111}
+.cover{position:relative;max-width:400px;margin:44px auto 8px;line-height:0;overflow:visible;
+  border:15px solid transparent;border-image:url(../assets/chrome/panel-frame.webp) 52 stretch;
+  box-shadow:8px 9px 0 rgba(26,19,12,.28);background:#111}
 .cover-art{display:block;width:100%}
-.cover-logo{position:absolute;top:9.6%;left:50%;width:54%;
-  transform:translateX(-50%) rotate(-1deg);filter:drop-shadow(2px 2px 0 rgba(0,0,0,.22))}
+/* separated title: ribbon element + logo centered in it, pinned across the top (breaks the frame) */
+.covertitle{position:absolute;top:-34px;left:50%;transform:translateX(-50%);width:98%;max-width:392px;z-index:3;line-height:0;
+  filter:drop-shadow(3px 4px 0 rgba(26,19,12,.22))}
+.ribbon{display:block;width:100%}
+.cover-logo{position:absolute;top:43%;left:50%;width:60%;
+  transform:translate(-50%,-50%) rotate(-1deg)}
+@media(max-width:560px){.covertitle{top:-22px}}
 
 /* pop-art starburst badge that bursts OFF the border */
 .burst{position:absolute;z-index:4;display:grid;place-items:center;text-align:center;line-height:1;
