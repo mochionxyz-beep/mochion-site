@@ -41,16 +41,14 @@
       <h2>Our own README was lying to us</h2>
       <div class="caption">
         <span class="kicker">What broke</span>
-        A documentation audit found the position-manager README claiming the service does
-        market-only execution and has no reconciliation. Both claims are false — it has limit
-        entry <b>and</b> a reconcile worker. The docs had drifted behind the code, which is
-        how you end up confidently telling people wrong things about your own system.
+        We checked our own notes against the actual code and found the notes were wrong —
+        they described the machine doing <em>less</em> than it really does. That's how you
+        end up confidently telling people the wrong thing about your own project.
       </div>
       <div class="caption">
         <span class="kicker">The fix</span>
-        Treat docs drift like a bug class, not an accident: the public description of the system
-        now comes from one audited source of truth, and README claims get checked against the
-        code before they're repeated anywhere — including on this site.
+        Now there's one place that counts as the truth, and every claim gets checked against
+        the real code before it goes anywhere — including this site.
       </div>
     </article>
 
@@ -58,19 +56,17 @@
 
     <article class="entry">
       <time datetime="2026-07-08">Issue #0 · 2026-07-08</time>
-      <h2>35 tests fail because the suite phones home</h2>
+      <h2>A bunch of tests kept failing for a silly reason</h2>
       <div class="caption">
         <span class="kicker">What broke</span>
-        The position-manager suite has 35 failures with one root cause: constructing the
-        Hyperliquid exchange adapter fetches <b>live metadata from the real API</b> — inside
-        unit tests. Works on a good network day, flakes on CI, and couples test results to
-        someone else's uptime.
+        Our automatic checks were quietly reaching out to the real exchange over the internet
+        while they ran. So they'd pass on a good day and fail whenever the connection hiccuped —
+        nothing to do with the actual code.
       </div>
       <div class="caption">
         <span class="kicker">The fix (in progress)</span>
-        The same seam pattern that already works in the carry-signal service: route the
-        network call through one injectable function, stub it in tests, and let CI run
-        fully offline. Boring, proven, and it makes the suite deterministic again.
+        We're cutting that cord so the checks run completely offline and give the same answer
+        every time. Boring — but boring is exactly what you want here.
       </div>
     </article>
 
@@ -81,7 +77,7 @@
 
   <footer class="indicia">
     <p><b>MOCHION</b> Publishing Co. &nbsp;·&nbsp; Vol. 1, No. 0 &nbsp;·&nbsp; printed in the open</p>
-    <p>An engineering research project — not a fund. Nothing herein is a solicitation, an offer, or investment advice.</p>
+    <p>A personal project, not a fund. Nothing herein is a solicitation, an offer, or investment advice.</p>
     <p><span class="reg" aria-hidden="true"></span> Moh-chee-on &nbsp;·&nbsp; © 2026 &nbsp;·&nbsp; <a href="https://x.com/mochionhq">@mochionhq</a></p>
   </footer>
 
