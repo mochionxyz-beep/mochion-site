@@ -1,7 +1,6 @@
 {
   "schema": "mochion.activity.v1",
-  "status": "under_construction",
-  "note": "Activity pipeline not yet live. Schema documented in /docs/telemetry.md.",
-  "generated_at": null,
-  "weekly": []
+  "generated_at": "2026-07-09T00:00:00+00:00",
+  "status": "no_data",
+  "note": "the build feed hasn't started counting yet — commits and lines, tallied weekly."
 }

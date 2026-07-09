@@ -30,8 +30,8 @@
     <div class="banner">The Build Log</div>
     <p class="pron-tag" style="text-align:center">dispatches from the workshop — what broke, what got fixed, and why. No varnish.</p>
 
-    <figure class="panel--art tape">
-      <img src="data/activity.svg" width="800" height="260" alt="Commit and lines-of-code activity panel — under construction" loading="lazy">
+    <figure class="panel--art tape" id="activity-panel">
+      <div class="tape-waiting"><b>The build feed prints here.</b><span>Loading the latest counts…</span></div>
     </figure>
 
     <div class="stars" aria-hidden="true">✦ ✦ ✦</div>
@@ -82,5 +82,6 @@
   </footer>
 
 </div>
+<script src="js/activity.js" defer></script>
 </body>
 </html>
