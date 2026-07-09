@@ -121,18 +121,19 @@ header.masthead{position:relative;display:flex;justify-content:space-between;ali
 .hero h1{font-size:clamp(21px,4.6vw,32px);line-height:1.12;margin:6px 0 12px;text-wrap:balance}
 .hero h1 br{display:none} @media(min-width:720px){.hero h1 br{display:inline}}
 .hero .lede{max-width:600px;margin:0 auto;font-size:1.05em}
-.disclaimer{max-width:600px;margin:16px auto 0;background:var(--cream);border:var(--bw) solid var(--outline);
-  box-shadow:var(--sh);font-family:var(--type);font-size:.8em;line-height:1.5;padding:10px 14px}
+.disclaimer{max-width:600px;margin:16px auto 0;background:var(--cream);
+  font-family:var(--type);font-size:.8em;line-height:1.5;padding:6px 12px 10px}
 .disclaimer strong{color:var(--red-deep)}
 
-/* drawn hand-inked frame (border-image) on the main boxes */
-.caption, .panel--art, .act .panel{
-  border:15px solid transparent !important;
+/* drawn hand-inked frame (border-image) — the single box style across the site */
+.caption, .panel--art, .act .panel, .card, .disclaimer, .tape{
+  border:14px solid transparent !important;
   border-image:url(../assets/chrome/panel-frame.webp) 52 stretch;
   box-shadow:var(--sh);
 }
 .caption{padding:6px 10px 10px}
 .panel--art{padding:0;background:transparent}
+.tape{padding:0;background:transparent}
 .err-art{max-width:520px;margin:0 auto;display:block}
 
 /* brand mark (logo image in masthead) */
@@ -145,12 +146,9 @@ header.masthead{position:relative;display:flex;justify-content:space-between;ali
   box-shadow:8px 9px 0 rgba(26,19,12,.28);background:#111}
 .cover-art{display:block;width:100%}
 /* separated title: ribbon element + logo centered in it, pinned across the top (breaks the frame) */
-.covertitle{position:absolute;top:-34px;left:50%;transform:translateX(-50%);width:98%;max-width:392px;z-index:3;line-height:0;
-  filter:drop-shadow(3px 4px 0 rgba(26,19,12,.22))}
-.ribbon{display:block;width:100%}
-.cover-logo{position:absolute;top:43%;left:50%;width:60%;
-  transform:translate(-50%,-50%) rotate(-1deg)}
-@media(max-width:560px){.covertitle{top:-22px}}
+.covertitle{position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:100%;max-width:404px;z-index:3;
+  display:block;filter:drop-shadow(3px 4px 0 rgba(26,19,12,.2))}
+@media(max-width:560px){.covertitle{top:-20px}}
 
 /* pop-art starburst badge that bursts OFF the border */
 .burst{position:absolute;z-index:4;display:grid;place-items:center;text-align:center;line-height:1;
@@ -192,8 +190,7 @@ header.masthead{position:relative;display:flex;justify-content:space-between;ali
 /* ---------- The Cast (collectible cards) ---------- */
 .cast{display:grid;gap:18px;margin:26px 0;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
 @media(min-width:900px){.cast{grid-template-columns:repeat(4,1fr)}}
-.card{position:relative;background:var(--cream);border:var(--bw) solid var(--outline);box-shadow:var(--sh);
-  display:flex;flex-direction:column;overflow:hidden}
+.card{position:relative;background:var(--cream);display:flex;flex-direction:column}
 .card-art{position:relative;aspect-ratio:4/5;border-bottom:var(--bw) solid var(--outline);background:var(--paper-hi)}
 .card-art img{width:100%;height:100%;object-fit:cover;display:block}
 .card-no{position:absolute;top:6px;right:6px;font-family:var(--type);font-size:.62em;letter-spacing:.06em;
