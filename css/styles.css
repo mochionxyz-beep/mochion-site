@@ -143,8 +143,8 @@ header.masthead{position:relative;display:flex;justify-content:space-between;ali
 .cover{position:relative;max-width:400px;margin:20px auto 6px;line-height:0;overflow:visible;
   border:var(--bw) solid var(--outline);box-shadow:8px 9px 0 rgba(26,19,12,.32);background:#111}
 .cover-art{display:block;width:100%}
-.cover-logo{position:absolute;top:4.2%;left:50.5%;width:60%;
-  transform:translateX(-50%) rotate(-1.2deg);filter:drop-shadow(2px 2px 0 rgba(0,0,0,.22))}
+.cover-logo{position:absolute;top:9.6%;left:50%;width:54%;
+  transform:translateX(-50%) rotate(-1deg);filter:drop-shadow(2px 2px 0 rgba(0,0,0,.22))}
 
 /* pop-art starburst badge that bursts OFF the border */
 .burst{position:absolute;z-index:4;display:grid;place-items:center;text-align:center;line-height:1;
