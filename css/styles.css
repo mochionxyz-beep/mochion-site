@@ -274,7 +274,7 @@ a{color:var(--red-deep)}
   @keyframes stamp{0%{opacity:0;transform:scale(.4) rotate(-5deg)}60%{opacity:1;transform:scale(1.1) rotate(1deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
   .halftone{animation:grain .5s steps(4) infinite}
   @keyframes grain{0%{background-position:0 0}25%{background-position:1px 1px}50%{background-position:-1px 0}75%{background-position:0 -1px}100%{background-position:0 0}}
-  .ticker span{animation:roll 40s linear infinite}
+  .ticker span{animation:roll 72s linear infinite}
   @keyframes roll{to{transform:translateX(-100%)}}
   @supports (animation-timeline:view()){
     .panel,.caption,.banner{animation:rise 1ms steps(5) both;animation-timeline:view();animation-range:entry 0% entry 40%}
