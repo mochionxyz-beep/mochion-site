@@ -248,6 +248,21 @@ header.masthead{position:relative;display:flex;justify-content:space-between;ali
 .entry h2{margin:4px 0 10px;font-size:clamp(20px,4.2vw,28px)}
 .tape img{display:block;width:100%}
 
+/* The Tape — JS-rendered live panel (site/js/tape.js reads data/public.json) */
+.tape-live,.tape-waiting{background:#E9DFC9;color:#26201C}
+.tape-live{padding:16px 16px 12px}
+.tape-chart{display:block;width:100%;height:auto;margin-bottom:8px}
+.tape-chart .tape-ax{font-family:var(--type);font-size:12px;fill:#6b6355}
+.tape-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:12px 8px;margin:8px 4px 2px}
+.tape-stat{text-align:center}
+.tape-stat b{display:block;font-family:var(--disp);font-size:1.3em;line-height:1;color:#26201C}
+.tape-stat span{display:block;font-family:var(--type);font-size:.62em;letter-spacing:.03em;text-transform:uppercase;color:#6b6355;margin-top:4px;line-height:1.2}
+.tape-basis,.tape-stamp{font-family:var(--type);font-size:.72em;color:#6b6355;text-align:center;margin:6px 12px 0}
+.tape-caveat{font-family:var(--type);font-size:.76em;color:var(--red-deep);text-align:center;margin:8px 12px 0}
+.tape-waiting{padding:34px 22px;text-align:center}
+.tape-waiting b{display:block;font-family:var(--disp);font-size:1.35em;margin-bottom:8px;color:#26201C}
+.tape-waiting span{display:block;font-family:var(--type);font-size:.88em;color:#6b6355;max-width:440px;margin:0 auto;line-height:1.55}
+
 /* ---------- follow CTA ---------- */
 .follow{text-align:center;padding:28px 0 40px}
 .btn-follow{display:inline-flex;align-items:center;gap:10px;min-height:50px;padding:12px 26px;
