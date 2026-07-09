@@ -189,7 +189,7 @@ header.masthead{position:relative;display:flex;justify-content:space-between;ali
   -webkit-mask-image:linear-gradient(135deg,transparent 55%,#000);mask-image:linear-gradient(135deg,transparent 55%,#000);opacity:.22}
 
 .row{display:grid;gap:22px;align-items:center;margin:30px 0}
-@media(min-width:720px){.row{grid-template-columns:1fr 1fr}.row>.panel,.row>.copy{margin:0}.row--flip>:first-child{order:2}}
+@media(min-width:720px){.row{grid-template-columns:1fr 1fr}.row--feature{grid-template-columns:1.2fr .9fr}.row>.panel,.row>.copy,.row>.caption{margin:0}.row--flip>:first-child{order:2}}
 .copy h2{font-size:clamp(22px,4.6vw,32px);margin-bottom:10px;color:var(--ink)}
 .copy p{color:var(--ink)}
 .copy .sub{font-family:var(--type);color:var(--paper-dim);font-size:.82em;margin-top:10px}
