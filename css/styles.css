@@ -140,11 +140,28 @@ header.masthead{position:relative;display:flex;justify-content:space-between;ali
 @media(min-width:720px){.brandmark{height:30px}}
 
 /* comic COVER hero */
-.cover{position:relative;max-width:400px;margin:8px auto 2px;line-height:0;
+.cover{position:relative;max-width:400px;margin:20px auto 6px;line-height:0;overflow:visible;
   border:var(--bw) solid var(--outline);box-shadow:8px 9px 0 rgba(26,19,12,.32);background:#111}
 .cover-art{display:block;width:100%}
 .cover-logo{position:absolute;top:4.2%;left:50.5%;width:60%;
   transform:translateX(-50%) rotate(-1.2deg);filter:drop-shadow(2px 2px 0 rgba(0,0,0,.22))}
+
+/* pop-art starburst badge that bursts OFF the border */
+.burst{position:absolute;z-index:4;display:grid;place-items:center;text-align:center;line-height:1;
+  font-family:var(--type);color:#fff;text-transform:uppercase;letter-spacing:.03em}
+.burst::before{content:"";position:absolute;inset:-4px;background:var(--outline);z-index:-2;
+  clip-path:polygon(50% 0,60% 13%,76% 7%,75% 24%,92% 26%,81% 40%,100% 50%,81% 60%,92% 74%,75% 76%,76% 93%,60% 87%,50% 100%,40% 87%,24% 93%,25% 76%,8% 74%,19% 60%,0 50%,19% 40%,8% 26%,25% 24%,24% 7%,40% 13%)}
+.burst::after{content:"";position:absolute;inset:0;background:var(--red);z-index:-1;
+  clip-path:polygon(50% 0,60% 13%,76% 7%,75% 24%,92% 26%,81% 40%,100% 50%,81% 60%,92% 74%,75% 76%,76% 93%,60% 87%,50% 100%,40% 87%,24% 93%,25% 76%,8% 74%,19% 60%,0 50%,19% 40%,8% 26%,25% 24%,24% 7%,40% 13%)}
+.burst b{font-family:var(--disp);font-size:1.7em;display:block;margin-top:1px}
+.cover .burst{top:-22px;right:-20px;width:96px;height:96px;font-size:.6em;transform:rotate(8deg)}
+
+/* mascot peeking over / breaking a banner's top border */
+.peekwrap{position:relative}
+.peekwrap .banner{position:relative;z-index:2}
+.peek{position:absolute;z-index:1;width:104px;right:13%;bottom:12px;transform:rotate(4deg);
+  pointer-events:none;filter:drop-shadow(3px 3px 0 rgba(26,19,12,.18))}
+@media(max-width:560px){.peek{width:76px;right:6%}}
 
 /* ---------- panels ---------- */
 .panel{background:var(--cream);color:var(--ink);border:var(--bw) solid var(--outline);box-shadow:var(--sh);
