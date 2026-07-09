@@ -156,6 +156,21 @@ header.masthead{position:relative;display:flex;justify-content:space-between;ali
 .copy p{color:var(--ink)}
 .copy .sub{font-family:var(--type);color:var(--paper-dim);font-size:.82em;margin-top:10px}
 
+/* ---------- The Cast (collectible cards) ---------- */
+.cast{display:grid;gap:18px;margin:26px 0;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+@media(min-width:900px){.cast{grid-template-columns:repeat(4,1fr)}}
+.card{position:relative;background:var(--cream);border:var(--bw) solid var(--outline);box-shadow:var(--sh);
+  display:flex;flex-direction:column;overflow:hidden}
+.card-art{position:relative;aspect-ratio:4/5;border-bottom:var(--bw) solid var(--outline);background:var(--paper-hi)}
+.card-art img{width:100%;height:100%;object-fit:cover;display:block}
+.card-no{position:absolute;top:6px;right:6px;font-family:var(--type);font-size:.62em;letter-spacing:.06em;
+  background:var(--red);color:#fff;border:1.5px solid var(--outline);padding:2px 6px;z-index:2;transform:rotate(3deg)}
+.card-name{font-family:var(--disp);font-size:1.15em;background:var(--ink);color:var(--paper-hi);padding:7px 12px;text-align:center}
+.card-role{font-family:var(--type);font-size:.68em;letter-spacing:.06em;text-transform:uppercase;color:var(--red-deep);
+  text-align:center;padding:8px 10px 4px}
+.card-stat{font-size:.86em;line-height:1.45;color:var(--ink);padding:0 13px 15px;flex:1}
+.card-stat b{color:var(--red-deep);font-family:var(--type);font-size:.9em;letter-spacing:.03em}
+
 /* section title — reversed cover blurb */
 .banner{font-family:var(--disp);text-align:center;background:var(--ink);color:var(--paper-hi);
   border:var(--bw) solid var(--outline);box-shadow:var(--sh);padding:10px 16px;margin:34px auto 6px;
