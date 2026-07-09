@@ -125,6 +125,16 @@ header.masthead{position:relative;display:flex;justify-content:space-between;ali
   box-shadow:var(--sh);font-family:var(--type);font-size:.8em;line-height:1.5;padding:10px 14px}
 .disclaimer strong{color:var(--red-deep)}
 
+/* drawn hand-inked frame (border-image) on the main boxes */
+.caption, .panel--art, .act .panel{
+  border:15px solid transparent !important;
+  border-image:url(../assets/chrome/panel-frame.webp) 52 stretch;
+  box-shadow:var(--sh);
+}
+.caption{padding:6px 10px 10px}
+.panel--art{padding:0;background:transparent}
+.err-art{max-width:520px;margin:0 auto;display:block}
+
 /* brand mark (logo image in masthead) */
 .brandmark{height:24px;width:auto;display:block}
 @media(min-width:720px){.brandmark{height:30px}}
