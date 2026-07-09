@@ -125,6 +125,17 @@ header.masthead{position:relative;display:flex;justify-content:space-between;ali
   box-shadow:var(--sh);font-family:var(--type);font-size:.8em;line-height:1.5;padding:10px 14px}
 .disclaimer strong{color:var(--red-deep)}
 
+/* brand mark (logo image in masthead) */
+.brandmark{height:24px;width:auto;display:block}
+@media(min-width:720px){.brandmark{height:30px}}
+
+/* comic COVER hero */
+.cover{position:relative;max-width:400px;margin:8px auto 2px;line-height:0;
+  border:var(--bw) solid var(--outline);box-shadow:8px 9px 0 rgba(26,19,12,.32);background:#111}
+.cover-art{display:block;width:100%}
+.cover-logo{position:absolute;top:4.2%;left:50.5%;width:60%;
+  transform:translateX(-50%) rotate(-1.2deg);filter:drop-shadow(2px 2px 0 rgba(0,0,0,.22))}
+
 /* ---------- panels ---------- */
 .panel{background:var(--cream);color:var(--ink);border:var(--bw) solid var(--outline);box-shadow:var(--sh);
   padding:20px;margin:26px 0;position:relative}
