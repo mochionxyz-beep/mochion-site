@@ -11,7 +11,7 @@
 
 ## Flow
 ```
-hourly cron (trading box)
+daily cron (trading box)
   → sanitized exporter        → writes  data/public.json     (the track record)
   → activity exporter         → writes  data/activity.json   (commit/LOC stats)
   → commit ONLY the JSON files into a local clone of the site repo
@@ -26,7 +26,7 @@ kept OUT of this repo for isolation.
 ## Producer owns (everything under `site/data/`) — JSON ONLY
 | File | Cadence | Purpose |
 |---|---|---|
-| `data/public.json`   | hourly    | the track record ("The Tape"), rendered by the site |
+| `data/public.json`   | daily     | the track record ("The Tape"), rendered by the site (built from hourly snapshots, published through yesterday) |
 | `data/activity.json` | daily ok  | commit/LOC activity, rendered by the site on the build-log page |
 
 The site renders these with vanilla JS — the box **no longer renders SVG**. Until real data flows,
@@ -43,50 +43,66 @@ The site renders these with vanilla JS — the box **no longer renders SVG**. Un
   "as_of": "2026-01-02",
   "days_live": 2,
   "basis": {
-    "pnl": "realized, net of fees and funding",
+    "pnl": "total account P&L, marked-to-market (realized + unrealized + funding − commission)",
     "scope": "portfolio (aggregate)",
     "returns": "percent of account capital",
-    "note": "no absolute capital, no per-strategy or per-trade detail is published"
+    "note": "no absolute capital / per-strategy / per-trade detail is published. sharpe is annualized from daily returns (provisional — short history). win-rate / profit-factor are per close-event (hourly realized deltas)."
   },
   "summary": {
     "cumulative_return_pct": 6.0,
     "max_drawdown_pct": -1.2,
+    "sharpe": 2.1,
     "win_rate_pct": 66.7,
-    "closed_trades": 3,
     "profit_factor": 4.0,
+    "closed_trades": 3,
     "best_day_pct": 4.5,
     "worst_day_pct": -1.2
   },
-  "equity_curve": [ {"date": "2026-01-01", "value": 104.5}, {"date": "2026-01-02", "value": 106.0} ],
+  "equity_curve": [
+    {"date": "2026-01-01", "open": 100.0, "high": 104.6, "low": 99.7, "close": 104.5, "value": 104.5},
+    {"date": "2026-01-02", "open": 104.5, "high": 106.3, "low": 103.1, "close": 106.0, "value": 106.0}
+  ],
   "monthly_returns_pct": [ {"month": "2026-01", "return_pct": 6.0} ],
   "data_quality": { "realized_reconciles": true }
 }
 ```
-**No-data shape (before the first realized day):**
+**No-data shape (before the first day prints):**
 ```json
-{ "generated_at": "…", "status": "no_data", "note": "no realized activity in range yet",
+{ "generated_at": "…", "status": "no_data",
+  "note": "no realized activity yet — the first honest day hasn't printed. Follow the build.",
   "data_quality": { "realized_reconciles": true } }
 ```
 Field notes:
-- **Percent / index only.** `equity_curve[].value` is indexed to **100** at `since`. There is **no**
-  absolute capital, dollar figure, or position size anywhere — by construction.
+- **Percent / index only.** Each `equity_curve[]` entry is one **daily OHLC candle** — `open` / `high`
+  / `low` / `close`, each an index of the account NAV to **100** at `since` (`value` mirrors `close`
+  for a line-chart fallback). There is **no** absolute capital, dollar figure, or position size
+  anywhere — by construction.
 - **Portfolio-only.** One aggregate book — **no per-strategy attribution, no venue tags, no symbols**
   (strategy names and the venue mix are edge/identity signal). This deliberately drops the old
   `attribution[]` and `venues[]` fields.
-- **Realized only**, net of fees + funding; no mark-to-market / unrealized.
-- `summary.*` may be `null` (e.g. `win_rate_pct` / `profit_factor` before enough closed trades).
-- `data_quality.realized_reconciles=false` → the series didn't reconcile with the ledger; the site
-  must show a caveat (the exporter otherwise refuses to publish).
-- `as_of` intentionally lags (the exporter drops the last day) — publish **through yesterday**.
+- **NAV / mark-to-market.** The curve is total account P&L (realized + unrealized + funding −
+  commission), marked each hour and resampled to daily candles — so drawdown captures open-position
+  risk. `win_rate_pct` / `profit_factor` / `closed_trades` still come from the **realized** deltas
+  (closed trades only), per hourly close-event.
+- `summary.sharpe` is annualized from daily returns and **provisional on a short history** — render it
+  soberly (or omit) until the sample is long enough to be meaningful.
+- `summary.*` may be `null` (e.g. `sharpe` / `win_rate_pct` / `profit_factor` before enough data).
+- `data_quality.realized_reconciles=false` → the newest snapshot's realized didn't match the ledger;
+  the site **must show a caveat**. The exporter still publishes from the authoritative snapshots (it
+  does **not** refuse) — it just flags the drift.
+- `as_of` intentionally lags (the exporter drops the last `--lag-days` days) — publish **through
+  yesterday**.
 
 ## Sanitization (hard) — results, not intentions
-- ALLOWED: the indexed equity curve; the realized % returns / ratios / counts above; max drawdown;
-  `generated_at` / `since` / `as_of` / `days_live`.
+- ALLOWED: the indexed NAV equity curve (daily OHLC candles); the % returns / ratios / counts above
+  (Sharpe, win-rate, profit-factor, best/worst day); max drawdown; `generated_at` / `since` / `as_of`
+  / `days_live`.
 - FORBIDDEN: absolute capital, dollars, position sizes; per-strategy or per-trade detail; symbols;
   venues; open orders / pending signals / order prices; API keys, hostnames, IPs, account ids,
   anything from `.env`.
-- The exporter is allow-list based (built from named fields), never a state dump, and refuses to
-  publish an unreconciled curve.
+- The exporter is allow-list based (built from named fields), never a state dump. It always publishes
+  from the authoritative snapshots and sets `data_quality.realized_reconciles` — it does not refuse on
+  drift; the site shows a caveat when the flag is `false`.
 
 ## `activity.json` schema (v1) — unchanged (separate stream)
 ```json
@@ -105,15 +121,26 @@ counts.** Aggregate only — repo names never appear in the JSON.
 
 ## Rendering (site side — vanilla JS, self-hosted, no CDN)
 `site/js/tape.js` fetches `/data/public.json` and draws:
-- an inline **SVG equity curve** (indexed-100 line), in the comic style;
+- an inline **SVG equity curve** (indexed-100), in the comic style — render `equity_curve[]` as daily
+  **OHLC candlesticks** (`open`/`high`/`low`/`close`), or fall back to a line off `value` (== `close`);
 - a sober **summary** that **owns the downside** — max drawdown and worst day shown right beside the
-  wins; no hype, no annualizing, no projections;
+  wins; no hype, no projections. If you show `sharpe`, label it *provisional (short history)*;
 - the **age-of-record stamp**: `live since <since> · <days_live> days · generated <UTC>`;
 - the **`no_data`** "waiting" state, and a **caveat** when `realized_reconciles=false`.
 
 Style tokens (so the panel reads native): parchment `#E9DFC9`, ink `#26201C`, secondary `#6b6355`,
 matcha `#9DBB72` (fill) / `#587A40` (stroke), pink `#EFA9B8` sparingly; equity line `#26201C` 3px.
 Keep the standing disclaimer: **unaudited, short history, past results never promise future ones.**
+
+## What changed (2026-07-10)
+- **Curve basis: realized-only → account NAV (mark-to-market).** `equity_curve` / drawdown / Sharpe /
+  returns now track total P&L (realized + unrealized + funding − commission) marked each hour, so the
+  line moves continuously and drawdown includes open-position risk. Win-rate / profit-factor stay
+  realized-only (closed trades).
+- **`equity_curve[]` is now a daily OHLC candle** (`open`/`high`/`low`/`close`), resampled from the
+  hourly snapshots, with `value` == `close` kept for the line-chart fallback.
+- **Added `summary.sharpe`** — annualized daily-return Sharpe, flagged provisional on short history.
+- **Publish cadence is daily** (built from hourly snapshots, `--lag-days 1` → through yesterday).
 
 ## What changed (2026-07-09)
 - **`public.json` replaced `live.json` / `mochion.telemetry.v1`** as the track-record contract — the
