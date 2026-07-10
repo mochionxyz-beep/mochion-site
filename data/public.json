@@ -1,6 +1,212 @@
 {
-  "generated_at": "2026-07-09T00:00:00+00:00",
-  "status": "no_data",
-  "note": "no realized activity yet — the first honest day hasn't printed. Follow the build.",
-  "data_quality": { "realized_reconciles": true }
+  "generated_at": "2026-07-10T20:50:03+00:00",
+  "since": "2026-05-28",
+  "as_of": "2026-07-09",
+  "days_live": 43,
+  "basis": {
+    "pnl": "realized, net of fees and funding",
+    "scope": "portfolio (aggregate)",
+    "returns": "percent of account capital",
+    "note": "no absolute capital, no per-strategy or per-trade detail is published"
+  },
+  "summary": {
+    "cumulative_return_pct": 13.46,
+    "max_drawdown_pct": -1.4,
+    "win_rate_pct": null,
+    "closed_trades": null,
+    "profit_factor": null,
+    "best_day_pct": 3.59,
+    "worst_day_pct": -0.76
+  },
+  "equity_curve": [
+    {
+      "date": "2026-05-28",
+      "value": 100.0
+    },
+    {
+      "date": "2026-05-29",
+      "value": 100.0
+    },
+    {
+      "date": "2026-05-30",
+      "value": 100.0
+    },
+    {
+      "date": "2026-05-31",
+      "value": 100.0
+    },
+    {
+      "date": "2026-06-01",
+      "value": 100.0
+    },
+    {
+      "date": "2026-06-02",
+      "value": 100.0
+    },
+    {
+      "date": "2026-06-03",
+      "value": 100.0
+    },
+    {
+      "date": "2026-06-04",
+      "value": 100.0
+    },
+    {
+      "date": "2026-06-05",
+      "value": 100.0
+    },
+    {
+      "date": "2026-06-06",
+      "value": 100.0
+    },
+    {
+      "date": "2026-06-07",
+      "value": 100.0
+    },
+    {
+      "date": "2026-06-08",
+      "value": 100.0
+    },
+    {
+      "date": "2026-06-09",
+      "value": 103.5932
+    },
+    {
+      "date": "2026-06-10",
+      "value": 104.7052
+    },
+    {
+      "date": "2026-06-11",
+      "value": 104.7007
+    },
+    {
+      "date": "2026-06-12",
+      "value": 104.515
+    },
+    {
+      "date": "2026-06-13",
+      "value": 104.5258
+    },
+    {
+      "date": "2026-06-14",
+      "value": 104.9642
+    },
+    {
+      "date": "2026-06-15",
+      "value": 104.8283
+    },
+    {
+      "date": "2026-06-16",
+      "value": 105.4834
+    },
+    {
+      "date": "2026-06-17",
+      "value": 105.7232
+    },
+    {
+      "date": "2026-06-18",
+      "value": 106.1046
+    },
+    {
+      "date": "2026-06-19",
+      "value": 106.3938
+    },
+    {
+      "date": "2026-06-20",
+      "value": 106.3954
+    },
+    {
+      "date": "2026-06-21",
+      "value": 106.3675
+    },
+    {
+      "date": "2026-06-22",
+      "value": 106.5047
+    },
+    {
+      "date": "2026-06-23",
+      "value": 105.7424
+    },
+    {
+      "date": "2026-06-24",
+      "value": 105.0111
+    },
+    {
+      "date": "2026-06-25",
+      "value": 105.312
+    },
+    {
+      "date": "2026-06-26",
+      "value": 105.3015
+    },
+    {
+      "date": "2026-06-27",
+      "value": 105.874
+    },
+    {
+      "date": "2026-06-28",
+      "value": 105.8596
+    },
+    {
+      "date": "2026-06-29",
+      "value": 107.6828
+    },
+    {
+      "date": "2026-06-30",
+      "value": 107.1985
+    },
+    {
+      "date": "2026-07-01",
+      "value": 107.0019
+    },
+    {
+      "date": "2026-07-02",
+      "value": 106.9768
+    },
+    {
+      "date": "2026-07-03",
+      "value": 106.938
+    },
+    {
+      "date": "2026-07-04",
+      "value": 109.1519
+    },
+    {
+      "date": "2026-07-05",
+      "value": 110.781
+    },
+    {
+      "date": "2026-07-06",
+      "value": 111.8641
+    },
+    {
+      "date": "2026-07-07",
+      "value": 112.2988
+    },
+    {
+      "date": "2026-07-08",
+      "value": 112.6007
+    },
+    {
+      "date": "2026-07-09",
+      "value": 113.4621
+    }
+  ],
+  "monthly_returns_pct": [
+    {
+      "month": "2026-05",
+      "return_pct": 0.0
+    },
+    {
+      "month": "2026-06",
+      "return_pct": 7.2
+    },
+    {
+      "month": "2026-07",
+      "return_pct": 6.26
+    }
+  ],
+  "data_quality": {
+    "realized_reconciles": true
+  }
 }
