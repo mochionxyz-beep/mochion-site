@@ -250,14 +250,18 @@ header.masthead{position:relative;display:flex;justify-content:space-between;ali
 
 /* The Tape — JS-rendered live panel (site/js/tape.js reads data/public.json) */
 .tape-live,.tape-waiting{background:#E9DFC9;color:#26201C}
-.tape-live{padding:16px 16px 12px}
-.tape-chart{display:block;width:100%;height:auto;margin-bottom:8px}
+.tape-live{padding:16px 16px 12px;position:relative}
+.tape-chart{display:block;width:100%;height:auto;margin-bottom:8px;cursor:crosshair}
 .tape-chart .tape-ax{font-family:var(--type);font-size:12px;fill:#6b6355}
+.tape-cursor{stroke:#6b6355;stroke-width:1;stroke-dasharray:2 3;pointer-events:none}
+.tape-tip{position:absolute;pointer-events:none;background:#26201C;color:#F1E9D6;font-family:var(--type);font-size:.72em;letter-spacing:.02em;padding:3px 8px;border-radius:3px;white-space:nowrap;z-index:3;box-shadow:2px 2px 0 rgba(0,0,0,.25)}
 .tape-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:12px 8px;margin:8px 4px 2px}
 .tape-stat{text-align:center}
 .tape-stat b{display:block;font-family:var(--disp);font-size:1.3em;line-height:1;color:#26201C}
 .tape-stat span{display:block;font-family:var(--type);font-size:.62em;letter-spacing:.03em;text-transform:uppercase;color:#6b6355;margin-top:4px;line-height:1.2}
-.tape-basis,.tape-stamp{font-family:var(--type);font-size:.72em;color:#6b6355;text-align:center;margin:6px 12px 0}
+.tape-basis,.tape-stamp,.tape-next{font-family:var(--type);font-size:.72em;color:#6b6355;text-align:center;margin:6px 12px 0}
+.tape-next{letter-spacing:.04em;text-transform:uppercase;margin-top:8px}
+.tape-cd{font-weight:bold;color:#587A40}
 .tape-caveat{font-family:var(--type);font-size:.76em;color:var(--red-deep);text-align:center;margin:8px 12px 0}
 .tape-waiting{padding:34px 22px;text-align:center}
 .tape-waiting b{display:block;font-family:var(--disp);font-size:1.35em;margin-bottom:8px;color:#26201C}
