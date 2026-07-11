@@ -69,13 +69,17 @@
     var stamp = 'live since ' + esc(d.since || '—') + ' · ' + esc(d.days_live != null ? d.days_live + ' days' : '—') +
       ' · generated ' + esc((d.generated_at || '').replace('T', ' ').slice(0, 16)) + ' UTC';
     var basis = d.basis ? (esc(d.basis.pnl) + ' · ' + esc(d.basis.scope) + ' · ' + esc(d.basis.returns)) : '';
-    var sharpeNote = (s.sharpe != null) ? '<p class="tape-basis">Sharpe is provisional — annualized on a short history.</p>' : '';
+    // Sharpe is only meaningful with enough history; per the contract ("render soberly, or omit
+    // until the sample is long enough"), hide it until ~6 months so a short-sample outlier
+    // (e.g. an 8+ Sharpe over a few weeks) never reads as a promise.
+    var showSharpe = (s.sharpe != null && d.days_live != null && d.days_live >= 180);
+    var sharpeNote = showSharpe ? '<p class="tape-basis">Sharpe is annualized and still provisional — read it lightly.</p>' : '';
     el.innerHTML =
       '<div class="tape-live">' + chart +
         '<div class="tape-summary">' +
           stat(pct(s.cumulative_return_pct), 'return since ' + (d.since || 'start')) +
           stat(pct(s.max_drawdown_pct), 'max drawdown') +
-          stat(s.sharpe == null ? '—' : s.sharpe.toFixed(2), 'sharpe*') +
+          (showSharpe ? stat(s.sharpe.toFixed(2), 'sharpe*') : '') +
           stat(s.win_rate_pct == null ? '—' : s.win_rate_pct.toFixed(0) + '%', 'win rate') +
           stat(s.profit_factor == null ? '—' : s.profit_factor.toFixed(2), 'profit factor') +
           stat(s.closed_trades == null ? '—' : String(s.closed_trades), 'closed trades') +
