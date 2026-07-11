@@ -69,11 +69,10 @@
     var stamp = 'live since ' + esc(d.since || '—') + ' · ' + esc(d.days_live != null ? d.days_live + ' days' : '—') +
       ' · generated ' + esc((d.generated_at || '').replace('T', ' ').slice(0, 16)) + ' UTC';
     var basis = d.basis ? (esc(d.basis.pnl) + ' · ' + esc(d.basis.scope) + ' · ' + esc(d.basis.returns)) : '';
-    // Sharpe is only meaningful with enough history; per the contract ("render soberly, or omit
-    // until the sample is long enough"), hide it until ~6 months so a short-sample outlier
-    // (e.g. an 8+ Sharpe over a few weeks) never reads as a promise.
-    var showSharpe = (s.sharpe != null && d.days_live != null && d.days_live >= 180);
-    var sharpeNote = showSharpe ? '<p class="tape-basis">Sharpe is annualized and still provisional — read it lightly.</p>' : '';
+    // Sharpe is shown with a provisional label (owner's call). It's annualized from daily returns
+    // and not meaningful on a short history — the label + soberly-sized stat keep it honest.
+    var showSharpe = (s.sharpe != null);
+    var sharpeNote = showSharpe ? '<p class="tape-basis">Sharpe is annualized and provisional — short history, read it lightly.</p>' : '';
     el.innerHTML =
       '<div class="tape-live">' + chart +
         '<div class="tape-summary">' +
