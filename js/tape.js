@@ -21,6 +21,17 @@
 
   function X(i, n) { return CH.PL + (CH.W - CH.PL - CH.PR) * (n <= 1 ? 0.5 : i / (n - 1)); }
 
+  var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function shortDate(iso) { var p = String(iso).split('-'); return p.length === 3 ? MON[+p[1] - 1] + ' ' + (+p[2]) : iso; }
+  // ~n "nice" round tick values spanning [lo, hi] (for axis gridlines/labels)
+  function niceTicks(lo, hi, n) {
+    if (!(hi > lo)) return [lo];
+    var raw = (hi - lo) / n, mag = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), norm = raw / mag;
+    var step = (norm < 1.5 ? 1 : norm < 3 ? 2 : norm < 7 ? 5 : 10) * mag, ticks = [];
+    for (var v = Math.ceil(lo / step) * step; v <= hi + step * 1e-6; v += step) ticks.push(Math.round(v * 1e6) / 1e6);
+    return ticks;
+  }
+
   // equity_curve[] = daily OHLC candles (open/high/low/close, value==close). Candlesticks;
   // fall back to a line off `value` when OHLC isn't present.
   function chartSVG(curve) {
@@ -31,7 +42,7 @@
     var min = Math.min.apply(null, lows.concat([100])), max = Math.max.apply(null, highs.concat([100]));
     var pad = (max - min) * 0.12 || 2; min -= pad; max += pad;
     function Y(v) { return CH.PT + (CH.H - CH.PT - CH.PB) * (1 - (v - min) / (max - min || 1)); }
-    var y100 = Y(100).toFixed(1), last = curve[n - 1], body = '';
+    var last = curve[n - 1], body = '';
 
     if (ohlc) {
       var cw = Math.max(2, Math.min(14, (CH.W - CH.PL - CH.PR) / n * 0.62));
@@ -48,13 +59,22 @@
       body = '<path d="' + area + '" fill="' + C.matcha + '" opacity="0.2"/><path d="' + line + '" fill="none" stroke="' + C.ink + '" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>' +
         '<circle cx="' + X(n - 1, n).toFixed(1) + '" cy="' + Y(last.value).toFixed(1) + '" r="4.5" fill="' + C.matchaDeep + '" stroke="' + C.paper + '" stroke-width="1.5"/>';
     }
-    return '<svg class="tape-chart" viewBox="0 0 ' + CH.W + ' ' + CH.H + '" role="img" aria-label="Account equity curve, indexed to 100 at start">' +
+    // gridlines + ticks: y-axis = % change from the 100 start; x-axis = dates at intervals
+    var grid = '';
+    niceTicks(min - 100, max - 100, 4).forEach(function (t) {
+      var yy = Y(100 + t), base = Math.abs(t) < 1e-6;
+      grid += '<line x1="' + CH.PL + '" y1="' + yy.toFixed(1) + '" x2="' + (CH.W - CH.PR) + '" y2="' + yy.toFixed(1) + '" class="tape-grid' + (base ? ' tape-grid--base' : '') + '"/>' +
+        '<text x="' + (CH.PL - 6) + '" y="' + (yy + 3.5).toFixed(1) + '" text-anchor="end" class="tape-ax">' + (t > 0 ? '+' : '') + (Math.round(t * 10) / 10) + '%</text>';
+    });
+    var xn = Math.min(6, n), xstep = (n - 1) / (xn - 1 || 1);
+    for (var k = 0; k < xn; k++) {
+      var xi = Math.round(k * xstep), xx = X(xi, n);
+      grid += '<line x1="' + xx.toFixed(1) + '" y1="' + CH.PT + '" x2="' + xx.toFixed(1) + '" y2="' + (CH.H - CH.PB) + '" class="tape-grid"/>' +
+        '<text x="' + xx.toFixed(1) + '" y="' + (CH.H - 11) + '" text-anchor="' + (k === 0 ? 'start' : k === xn - 1 ? 'end' : 'middle') + '" class="tape-ax">' + esc(shortDate(curve[xi].date)) + '</text>';
+    }
+    return '<svg class="tape-chart" viewBox="0 0 ' + CH.W + ' ' + CH.H + '" role="img" aria-label="Account equity, percent change from the start (indexed to 100)">' +
+      grid + body +
       '<line class="tape-cursor" y1="' + CH.PT + '" y2="' + (CH.H - CH.PB) + '" style="display:none"/>' +
-      '<line x1="' + CH.PL + '" y1="' + y100 + '" x2="' + (CH.W - CH.PR) + '" y2="' + y100 + '" stroke="' + C.sec + '" stroke-width="1" stroke-dasharray="4 4"/>' +
-      '<text x="' + (CH.PL - 7) + '" y="' + (+y100 + 4) + '" text-anchor="end" class="tape-ax">100</text>' +
-      body +
-      '<text x="' + CH.PL + '" y="' + (CH.H - 11) + '" class="tape-ax">' + esc(curve[0].date) + '</text>' +
-      '<text x="' + (CH.W - CH.PR) + '" y="' + (CH.H - 11) + '" text-anchor="end" class="tape-ax">' + esc(last.date) + '</text>' +
     '</svg>';
   }
 
@@ -116,7 +136,7 @@
       ? '<p class="tape-caveat">⚠ the newest snapshot didn’t fully reconcile with the ledger — treat as provisional.</p>' : '';
     var stamp = 'live since ' + esc(d.since || '—') + ' · ' + esc(d.days_live != null ? d.days_live + ' days' : '—') +
       ' · generated ' + esc((d.generated_at || '').replace('T', ' ').slice(0, 16)) + ' UTC';
-    var basis = d.basis ? (esc(d.basis.pnl) + ' · ' + esc(d.basis.scope) + ' · ' + esc(d.basis.returns)) : '';
+    var basis = d.basis ? (esc(d.basis.pnl) + ' · ' + esc(d.basis.scope)) : '';   // returns/% now shown on the y-axis
     el.innerHTML =
       '<div class="tape-live">' + chart +
         '<div class="tape-summary">' +
