@@ -79,9 +79,14 @@
       tip.style.top = Math.max(2, ly - 34) + 'px';
     }
     function hide() { tip.style.display = 'none'; if (cursor) cursor.style.display = 'none'; }
-    svg.addEventListener('pointermove', function (e) { move(e.clientX, e.clientY); });
-    svg.addEventListener('pointerleave', hide);
-    svg.addEventListener('pointerup', hide);
+    function at(e) { move(e.clientX, e.clientY); }
+    svg.addEventListener('pointermove', at);                       // mouse hover + touch/pen drag scrub
+    svg.addEventListener('pointerdown', function (e) {             // tap (touch) / press (mouse) picks a day
+      at(e);
+      if (svg.setPointerCapture) { try { svg.setPointerCapture(e.pointerId); } catch (_) {} }
+    });
+    svg.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') hide(); });  // touch tip persists
+    document.addEventListener('pointerdown', function (e) { if (!svg.contains(e.target)) hide(); }); // tap away dismisses
   }
 
   // "updated daily · next in Hh Mm Ss" — ticks toward generated_at + 24h (rolls forward if overdue).
