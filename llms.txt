@@ -16,6 +16,12 @@ way to deposit or invest. The site exists to document the build and the record.
 - https://mochion.xyz/roadmap — the playbill: now / next / later, shipped things only
 - https://mochion.xyz/feed.xml — Atom feed of the build log
 
+## Verify
+- https://github.com/mochionxyz-beep/mochion-site — the site and its daily data live in a
+  public, append-only repository (protected history): each day's record is a timestamped
+  commit by the mochion-data bot. The record is self-reported and unaudited; what is
+  verifiable is that it accumulates daily in public and is never rewritten.
+
 ## Data
 - https://mochion.xyz/data/public.json — the machine-readable track record behind
   The Tape: a percent-indexed daily OHLC equity curve (100 = start) plus summary
