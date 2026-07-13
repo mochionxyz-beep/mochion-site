@@ -1,0 +1,24 @@
+# Mochion
+
+> Mochion (pronounced "moh-chee-on", https://mochion.xyz) is a small, real crypto
+> algo-trading system presented as a 1930s comic-book world. Mochi, a little dango
+> worker, keeps "the Machine" — one automated trading system running a small
+> portfolio of careful strategies — working around the clock in a glass-walled
+> workshop, and publishes its honest track record daily. The motto: don't trust — watch.
+
+IMPORTANT: Mochion is a personal project, not a fund. Nothing on the site is a
+solicitation, an offer, or investment advice. There is no token, no NFT, and no
+way to deposit or invest. The site exists to document the build and the record.
+
+## Pages
+- https://mochion.xyz/ — Issue #0: the world, the cast, and The Tape (the live track record)
+- https://mochion.xyz/log.html — the build log: what broke, what got fixed, and why
+- https://mochion.xyz/roadmap.html — the playbill: now / next / later, shipped things only
+- https://mochion.xyz/feed.xml — Atom feed of the build log
+
+## Data
+- https://mochion.xyz/data/public.json — the machine-readable track record behind
+  The Tape: a percent-indexed daily OHLC equity curve (100 = start) plus summary
+  stats. Deliberately sanitized: no dollar amounts, no position sizes, no
+  per-strategy detail, no venues. Updated daily, CORS-open — you may build on it
+  with attribution. Unaudited, short history; past results never promise future ones.

@@ -1,7 +1,10 @@
 name: Deploy to Cloudflare Pages
 
-# Every push to main (site edits, or the box's hourly data pushes) redeploys the
-# existing "mochion" Pages project — so mochion.xyz stays a static, no-build site.
+# Every push to main (site edits, or the box's daily data push) rebuilds the two
+# deploy-time artifacts and redeploys the "mochion" Pages project:
+#   og/tape.png — the live OG share card, rendered from data/public.json
+#   feed.xml    — the Atom feed, parsed from log.html
+# The site itself stays static, no-build, no client-side framework.
 on:
   push:
     branches: [main]
@@ -16,8 +19,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install CI generators (pinned)
+        run: npm ci --prefix ci --no-audit --no-fund
+
+      # live OG card — NON-FATAL: a card bug must never block the daily record.
+      # Falls back to the static index card so og:image always resolves.
+      - name: Render live OG card
+        run: node ci/og-tape.mjs || { mkdir -p og; cp assets/og/og-index.jpg og/tape.png; echo "og card: render failed, shipped static fallback"; }
+
+      # Atom feed — FATAL: only hand edits to log.html can break it, and that's
+      # exactly the push that should go red.
+      - name: Build Atom feed
+        run: node ci/build-feed.mjs
+
+      # unfurl caches (X/Discord/Slack) key on the exact og:image URL — a fresh
+      # ?v= per day means a fresh scrape per day. Deployed index.html differs
+      # from the committed one by this one substitution (disclosed on the site).
+      - name: Cache-bust the live card
+        run: sed -i "s|og/tape.png?v=[^\"]*|og/tape.png?v=$(date -u +%F)|" index.html
+
+      # generators are done — don't upload their dependencies to Pages
+      - name: Drop CI node_modules from the deploy dir
+        run: rm -rf ci/node_modules
+
       - name: Deploy to Cloudflare Pages
         run: npx wrangler@latest pages deploy . --project-name=mochion --branch=main
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      # third-party timestamp: every daily record lands in the Internet Archive.
+      # Best-effort — the archive being slow must not fail the deploy.
+      - name: Snapshot to the Wayback Machine
+        run: curl -s -m 60 "https://web.archive.org/save/https://mochion.xyz/" -o /dev/null || true

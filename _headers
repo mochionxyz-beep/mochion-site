@@ -1,0 +1,4 @@
+# Cloudflare Pages headers
+# The live OG card is re-rendered daily; let edges cache it for an hour only.
+/og/*
+  Cache-Control: public, max-age=3600

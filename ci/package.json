@@ -1,0 +1,9 @@
+{
+  "name": "mochion-ci",
+  "private": true,
+  "type": "module",
+  "description": "Deploy-time generators: the live OG tape card and the Atom feed. No site runtime deps.",
+  "dependencies": {
+    "@resvg/resvg-js": "2.6.2"
+  }
+}

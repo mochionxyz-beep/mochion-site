@@ -5,8 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Build log — Mochion</title>
   <meta name="description" content="What broke, what got fixed, and why — the honest build log of the Mochion trading system.">
+  <link rel="canonical" href="https://mochion.xyz/log.html">
   <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link rel="alternate" type="application/atom+xml" title="Mochion build log" href="https://mochion.xyz/feed.xml">
   <link rel="stylesheet" href="css/styles.css">
+  <meta property="og:site_name" content="Mochion">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mochion.xyz/log.html">
+  <meta property="og:title" content="Build log — Mochion">
+  <meta property="og:description" content="What broke, what got fixed, and why — the honest build log of the Mochion trading system.">
+  <meta property="og:image" content="https://mochion.xyz/assets/og/og-log.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Mochi asleep in an armchair beside the ticker — the night shift at Mochion HQ">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@mochionhq">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"Blog","name":"Mochion build log",
+   "url":"https://mochion.xyz/log.html",
+   "author":{"@type":"Organization","name":"Mochion","url":"https://mochion.xyz/"},
+   "blogPost":[
+     {"@type":"BlogPosting","headline":"Our own README was lying to us",
+      "datePublished":"2026-07-08","url":"https://mochion.xyz/log.html#2026-07-08-readme-lying"},
+     {"@type":"BlogPosting","headline":"A bunch of tests kept failing for a silly reason",
+      "datePublished":"2026-07-08","url":"https://mochion.xyz/log.html#2026-07-08-flaky-tests"}
+   ]}
+  </script>
 </head>
 <body>
 <div class="crops"><i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i></div>
@@ -15,7 +39,7 @@
   <div class="cover-strip">Mochion Publishing &nbsp;·&nbsp; No. 0 &nbsp;·&nbsp; <b>Moh-chee-on</b> &nbsp;·&nbsp; what broke, what got fixed</div>
 
   <header class="masthead">
-    <a class="brand" href="/"><img class="brandmark" src="assets/logo/mochion-logo.png" alt="Mochion" width="140" height="30"></a>
+    <a class="brand" href="/"><img class="brandmark" src="assets/logo/mochion-logo-560.png" alt="Mochion" width="140" height="30"></a>
     <nav>
       <a href="/">Issue #0</a>
       <a href="/log.html" aria-current="page">Build log</a>
@@ -27,8 +51,14 @@
   <hr class="double-rule">
 
   <main>
-    <div class="banner">The Build Log</div>
+    <h1 class="banner">The Build Log</h1>
     <p class="pron-tag" style="text-align:center">dispatches from the workshop — what broke, what got fixed, and why. No varnish.</p>
+
+    <!-- AUTHORING CONTRACT (ci/build-feed.mjs parses this page into /feed.xml at deploy):
+         each entry is an article with class="entry" and an id of the form YYYY-MM-DD-slug,
+         containing exactly one time[datetime=YYYY-MM-DD] and one h2. IDs are permalinks AND
+         feed GUIDs - never change one after it ships. Also add each new entry to the
+         BlogPosting JSON-LD in the head. -->
 
     <figure class="panel--art tape" id="activity-panel">
       <div class="tape-waiting"><b>The build feed prints here.</b><span>Loading the latest counts…</span></div>
@@ -36,7 +66,7 @@
 
     <div class="stars" aria-hidden="true">✦ ✦ ✦</div>
 
-    <article class="entry">
+    <article class="entry" id="2026-07-08-readme-lying">
       <time datetime="2026-07-08">Issue #0 · 2026-07-08</time>
       <h2>Our own README was lying to us</h2>
       <div class="caption">
@@ -54,7 +84,7 @@
 
     <div class="stars" aria-hidden="true">✦ ✦ ✦</div>
 
-    <article class="entry">
+    <article class="entry" id="2026-07-08-flaky-tests">
       <time datetime="2026-07-08">Issue #0 · 2026-07-08</time>
       <h2>A bunch of tests kept failing for a silly reason</h2>
       <div class="caption">
