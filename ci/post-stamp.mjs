@@ -24,8 +24,9 @@ const d = JSON.parse(readFileSync(new URL('../data/public.json', import.meta.url
 if (!d || d.status === 'no_data' || !d.equity_curve?.length) {
   console.error('stamp: no_data — nothing to post'); process.exit(0);
 }
+const FORCE = (process.env.FORCE || 'false').toLowerCase() === 'true';   // manual re-stamp override
 const ageH = (Date.now() - new Date(d.generated_at).getTime()) / 36e5;
-if (!(ageH >= 0 && ageH < 12)) {
+if (!FORCE && !(ageH >= 0 && ageH < 12)) {
   console.error(`stamp: export is ${ageH.toFixed(1)}h old — not a fresh day, skipping`); process.exit(0);
 }
 
