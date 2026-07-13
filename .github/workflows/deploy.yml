@@ -26,7 +26,8 @@ jobs:
       # live OG card — NON-FATAL: a card bug must never block the daily record.
       # Falls back to the static index card so og:image always resolves.
       - name: Render live OG card
-        run: node ci/og-tape.mjs || { mkdir -p og; cp assets/og/og-index.jpg og/tape.png; echo "og card: render failed, shipped static fallback"; }
+        run: |
+          node ci/og-tape.mjs || { mkdir -p og; cp assets/og/og-index.jpg og/tape.png; echo "og card render failed - shipped static fallback"; }
 
       # Atom feed — FATAL: only hand edits to log.html can break it, and that's
       # exactly the push that should go red.
