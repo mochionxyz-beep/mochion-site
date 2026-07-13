@@ -41,13 +41,51 @@ const MILESTONES = {
   200: 'day 200. the machine hums on.',
   365: 'one year. every single day, printed in public.',
 };
-const GREEN = ['the machine is running.', 'printed, stamped, public.',
-  'wins and losses, in the open.', 'nothing to hide, nowhere to hide it.'];
+// pools rotate keyed to the day number — no back-to-back repeats, ~2 weeks between
+// reuses. voice rules: sober, lowercase, never a return figure, red days owned.
+const GREEN = [
+  'the machine is running.',
+  'printed, stamped, public.',
+  'wins and losses, in the open.',
+  'nothing to hide, nowhere to hide it.',
+  'another day on the tape.',
+  'the lights stayed on all night.',
+  'same machine, same rules, same tape.',
+  'it did its job. it wrote it down.',
+  'the glass stays clean. look all you want.',
+  'one more honest day in the ledger.',
+  'quiet hum, steady hands.',
+  "the tape doesn't skip days.",
+];
+const FLAT = [
+  'boring day. boring is fine. boring compounds.',
+  "nothing happened. that's a feature.",
+  "flat. the machine doesn't force it.",
+  "no trade worth taking. so it didn't.",
+  'a quiet day at the workshop.',
+  'the machine sat on its hands today. on purpose.',
+  'sideways. patience is a position too.',
+  'nothing to report — reported anyway.',
+  'some days the tape just hums.',
+  'flat day. discipline looks like this.',
+];
+const RED = [
+  "a red one. printed anyway — that's the whole point.",
+  'red today. still printed. still public.',
+  'the machine took a hit. it wrote that down too.',
+  "losses go on the tape. that's the deal.",
+  'a rough day, printed in the same ink as the good ones.',
+  'red. no excuses, just the record.',
+  "down today. the tape doesn't blink.",
+  "it lost. it logged it. it's still running.",
+  'red days are why the tape exists.',
+  'took one on the chin. printed it anyway.',
+];
 
 let text;
 if (MILESTONES[day]) text = MILESTONES[day];
-else if (delta < -0.05) text = `day ${day}. a red one. printed anyway — that's the whole point.`;
-else if (delta <= 0.05) text = `day ${day}. boring day. boring is fine. boring compounds.`;
+else if (delta < -0.05) text = `day ${day}. ${RED[day % RED.length]}`;
+else if (delta <= 0.05) text = `day ${day}. ${FLAT[day % FLAT.length]}`;
 else text = `day ${day}. ${GREEN[day % GREEN.length]}`;
 
 const REPLY = 'the tape → https://mochion.xyz';
