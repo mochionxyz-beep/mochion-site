@@ -35,4 +35,4 @@ jobs:
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
           X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
           DRY_RUN: ${{ inputs.dry_run || 'false' }}
-          POST_REPLY: 'true'   # auto-post the link reply too (~$0.20/day under pay-per-use)
+          POST_REPLY: 'false'  # flip to 'true' when stamps clear ~1k impressions — then $0.20/day earns its keep
