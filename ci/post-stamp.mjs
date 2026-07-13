@@ -100,6 +100,12 @@ const media = await call('POST', 'https://upload.twitter.com/1.1/media/upload.js
 const tweet = await call('POST', 'https://api.twitter.com/2/tweets',
   { json: { text, media: { media_ids: [media.media_id_string] } } });
 console.error(`stamp: posted https://x.com/mochionhq/status/${tweet.data.id}`);
-await call('POST', 'https://api.twitter.com/2/tweets',
-  { json: { text: REPLY, reply: { in_reply_to_tweet_id: tweet.data.id } } });
-console.error('stamp: link reply posted. the machine speaks.');
+// URL tweets cost 13x under X's pay-per-use pricing — the link reply is manual
+// (owner adds it in the first hour, which doubles as human engagement time).
+// Set POST_REPLY=true to automate it anyway.
+if ((process.env.POST_REPLY || 'false').toLowerCase() === 'true') {
+  await call('POST', 'https://api.twitter.com/2/tweets',
+    { json: { text: REPLY, reply: { in_reply_to_tweet_id: tweet.data.id } } });
+  console.error('stamp: link reply posted.');
+}
+console.error('stamp: done. the machine speaks.');
