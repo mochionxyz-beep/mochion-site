@@ -1,0 +1,37 @@
+name: Daily stamp
+
+# Posts the day's tape card to @mochionhq — fires ONLY when the box pushes a new
+# data/public.json (the stamp exists iff the record landed). Manual dispatch
+# defaults to a dry run for safe testing. Fully separate from deploy.yml so a
+# posting failure can never block the record's deploy.
+on:
+  push:
+    branches: [main]
+    paths: [data/public.json]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: log what would post, without posting
+        default: 'true'
+
+concurrency:
+  group: stamp
+  cancel-in-progress: false
+
+jobs:
+  stamp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install CI generators (pinned)
+        run: npm ci --prefix ci --no-audit --no-fund
+      - name: Render today's card
+        run: node ci/og-tape.mjs
+      - name: Post the stamp
+        run: node ci/post-stamp.mjs
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
