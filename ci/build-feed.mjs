@@ -9,7 +9,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 
 const SITE = 'https://mochion.xyz';
-const PAGE = `${SITE}/log.html`;
+const PAGE = `${SITE}/log`;   // Pages serves pretty URLs (/log.html 308s here)
 
 const html = readFileSync(new URL('../log.html', import.meta.url), 'utf8');
 

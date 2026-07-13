@@ -12,8 +12,8 @@ way to deposit or invest. The site exists to document the build and the record.
 
 ## Pages
 - https://mochion.xyz/ — Issue #0: the world, the cast, and The Tape (the live track record)
-- https://mochion.xyz/log.html — the build log: what broke, what got fixed, and why
-- https://mochion.xyz/roadmap.html — the playbill: now / next / later, shipped things only
+- https://mochion.xyz/log — the build log: what broke, what got fixed, and why
+- https://mochion.xyz/roadmap — the playbill: now / next / later, shipped things only
 - https://mochion.xyz/feed.xml — Atom feed of the build log
 
 ## Data

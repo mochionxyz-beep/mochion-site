@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://mochion.xyz/</loc></url>
-  <url><loc>https://mochion.xyz/log.html</loc></url>
-  <url><loc>https://mochion.xyz/roadmap.html</loc></url>
+  <url><loc>https://mochion.xyz/log</loc></url>
+  <url><loc>https://mochion.xyz/roadmap</loc></url>
 </urlset>
