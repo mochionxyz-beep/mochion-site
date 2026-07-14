@@ -34,11 +34,15 @@ jobs:
       - name: Build Atom feed
         run: node ci/build-feed.mjs
 
-      # unfurl caches (X/Discord/Slack) key on the exact og:image URL — a fresh
-      # ?v= per day means a fresh scrape per day. Deployed index.html differs
-      # from the committed one by this one substitution (disclosed on the site).
-      - name: Cache-bust the live card
-        run: sed -i "s|og/tape.png?v=[^\"]*|og/tape.png?v=$(date -u +%F)|" index.html
+      # unfurl caches key on the exact og:image URL, and the CDN edge caches
+      # css/js for hours — a fresh ?v= per deploy makes both pick up changes
+      # immediately. Deployed HTML differs from the committed HTML by these
+      # substitutions only (disclosed in the README).
+      - name: Cache-bust the live card + css/js
+        run: |
+          STAMP=$(date -u +%Y%m%d%H%M)
+          sed -i "s|og/tape.png?v=[^\"]*|og/tape.png?v=$STAMP|" index.html
+          sed -i -E "s|(css/styles\.css\?v=)[^\"]*|\1$STAMP|g; s|(js/tape\.js\?v=)[^\"]*|\1$STAMP|g; s|(js/activity\.js\?v=)[^\"]*|\1$STAMP|g" index.html log.html roadmap.html 404.html
 
       # generators are done — don't upload their dependencies to Pages
       - name: Drop CI node_modules from the deploy dir
