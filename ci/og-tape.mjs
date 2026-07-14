@@ -11,6 +11,7 @@
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { Resvg } from '@resvg/resvg-js';
+import { outcome } from './x-lib.mjs';   // the ONE day-outcome rule (±FLAT_EPS) — single source
 
 const W = 1200, H = 630, WINDOW = 30;
 const C = {
@@ -71,13 +72,15 @@ function perforation(x, y0, y1) {
 
 // ---------- data pieces ----------
 // ONE day-outcome rule everywhere (candles, dots, and the stamp bot): the day is
-// green/red by close vs the PREVIOUS day's close (±0.05 index pts = flat/sand).
+// green/red by close vs the PREVIOUS day's close (±FLAT_EPS index pts = flat/sand).
 // Candles keep true OHLC geometry but are COLORED by outcome, so the chart and
-// the dots strip below it can never disagree.
-const outcomeOf = (delta) =>
-  delta > 0.05 ? { fill: C.matcha, stroke: C.matchaDeep }
-  : delta < -0.05 ? { fill: C.red, stroke: C.red }
-  : { fill: C.sand, stroke: C.sec };
+// the dots strip below it can never disagree. Threshold imported from x-lib.
+const OUTCOME_COLORS = {
+  green: { fill: C.matcha, stroke: C.matchaDeep },
+  red: { fill: C.red, stroke: C.red },
+  flat: { fill: C.sand, stroke: C.sec },
+};
+const outcomeOf = (delta) => OUTCOME_COLORS[outcome(delta)];
 const deltas = (curve, prevClose) => curve.map((p, i) => {
   const prev = i ? (curve[i - 1].close ?? curve[i - 1].value) : prevClose;
   return (p.close ?? p.value) - prev;

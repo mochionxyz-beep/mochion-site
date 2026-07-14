@@ -49,19 +49,8 @@ jobs:
         run: |
           WEEK=$(date -u +%G-W%V)
           BRANCH="dispatch/$WEEK"
-          # insert the new article right after <main> ... first "The Build Log" banner block,
-          # before the first existing stars/article — use the activity panel as the anchor.
-          node -e '
-            const fs=require("fs");
-            const html=fs.readFileSync("log.html","utf8");
-            const article=fs.readFileSync("/tmp/article.html","utf8").replace(/\s+$/,"");
-            const anchor="DRAFT-ANCHOR (draft-dispatch inserts the new entry immediately after this comment). -->";
-            const i=html.indexOf(anchor);
-            if(i<0){console.error("draft anchor not found in log.html");process.exit(1);}
-            const at=i+anchor.length;
-            const out=html.slice(0,at)+"\n\n"+article+"\n"+html.slice(at);
-            fs.writeFileSync("log.html",out);
-          '
+          # insert the drafted article after the unique sentinel (fails loud if it's gone)
+          node ci/insert-entry.mjs /tmp/article.html
           git config user.name mochion; git config user.email dev@mochion.xyz
           git checkout -b "$BRANCH"
           git add log.html

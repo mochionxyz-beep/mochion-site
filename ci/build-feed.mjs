@@ -7,24 +7,20 @@
 // Entry ids are permalinks AND feed GUIDs — never change one after it ships.
 
 import { readFileSync, writeFileSync } from 'node:fs';
+import { parseLogEntries, isEntryId, sortEntriesDesc } from './log-entries.mjs';
 
 const SITE = 'https://mochion.xyz';
 const PAGE = `${SITE}/log`;   // Pages serves pretty URLs (/log.html 308s here)
 
 const html = readFileSync(new URL('../log.html', import.meta.url), 'utf8');
 
-const entryRe = /<article class="entry" id="([^"]+)">([\s\S]*?)<\/article>/g;
-const entries = [];
-let m;
-while ((m = entryRe.exec(html)) !== null) {
-  const [, id, body] = m;
-  const date = body.match(/<time datetime="(\d{4}-\d{2}-\d{2})"/)?.[1];
-  const title = body.match(/<h2>([\s\S]*?)<\/h2>/)?.[1]?.trim();
+let entries = [];
+for (const { id, body, date, title } of parseLogEntries(html)) {
   if (!date || !title) {
     console.error(`feed: entry "${id}" is missing its <time datetime> or <h2> — fix log.html`);
     process.exit(1);
   }
-  if (!/^\d{4}-\d{2}-\d{2}-[a-z0-9-]+$/.test(id)) {
+  if (!isEntryId(id)) {
     console.error(`feed: entry id "${id}" violates the YYYY-MM-DD-slug contract — fix log.html`);
     process.exit(1);
   }
@@ -42,7 +38,7 @@ if (entries.length === 0) {
   process.exit(1);
 }
 
-entries.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+entries = sortEntriesDesc(entries);   // newest first
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const iso = (d) => `${d}T00:00:00Z`;

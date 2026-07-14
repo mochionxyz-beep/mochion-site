@@ -5,8 +5,17 @@
 // DRY_RUN=true logs only.
 
 import { readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { creds, uploadCard, postTweet, tally, LINK_REPLY } from './x-lib.mjs';
 import { notify } from './notify.mjs';
+
+// render og/tape.png fresh — called only after the guards pass and it's a real
+// post, so a skipped/dry run never spends a render (the workflow no longer does).
+function renderCard() {
+  const r = spawnSync(process.execPath, [fileURLToPath(new URL('./og-tape.mjs', import.meta.url))], { stdio: 'inherit' });
+  if (r.status !== 0) throw new Error(`card render failed (og-tape.mjs exited ${r.status})`);
+}
 
 const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 const DRY = (process.env.DRY_RUN || 'false').toLowerCase() === 'true';
@@ -42,6 +51,7 @@ const text = `${MONTHS[pm]}, printed and filed. ${idxs.length} days on the tape 
 console.error('monthly: text =\n' + text);
 if (DRY) { console.error('monthly: DRY RUN — not posting'); process.exit(0); }
 
+renderCard();
 const card = await uploadCard(c, new URL('../og/tape.png', import.meta.url));
 const tweet = await postTweet(c, text, { mediaId: card.id });
 console.error(`monthly: posted https://x.com/mochionhq/status/${tweet.id}`);

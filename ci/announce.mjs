@@ -7,21 +7,15 @@
 
 import { readFileSync } from 'node:fs';
 import { creds, whoAmI, myRecentTweets, postTweet, LINK_REPLY } from './x-lib.mjs';
+import { parseLogEntries, sortEntriesDesc } from './log-entries.mjs';
 import { notify } from './notify.mjs';
 
 const DRY = (process.env.DRY_RUN || 'false').toLowerCase() === 'true';
 
-// newest entry = same contract as build-feed
+// newest entry via the shared log.html contract parser (same one build-feed uses)
 const html = readFileSync(new URL('../log.html', import.meta.url), 'utf8');
-const entries = [];
-const re = /<article class="entry" id="([^"]+)">([\s\S]*?)<\/article>/g;
-let m; while ((m = re.exec(html)) !== null) {
-  const date = m[2].match(/<time datetime="(\d{4}-\d{2}-\d{2})"/)?.[1];
-  const title = m[2].match(/<h2>([\s\S]*?)<\/h2>/)?.[1]?.trim();
-  if (date && title) entries.push({ id: m[1], date, title });
-}
+const entries = sortEntriesDesc(parseLogEntries(html).filter((e) => e.date && e.title));
 if (!entries.length) { console.error('announce: no entries — skip'); process.exit(0); }
-entries.sort((a, b) => (a.date < b.date ? 1 : -1));
 const latest = entries[0];
 const url = `https://mochion.xyz/log#${latest.id}`;
 const text = `new dispatch from the workshop:\n\n"${latest.title}"`;

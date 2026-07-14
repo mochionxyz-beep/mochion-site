@@ -107,10 +107,13 @@ export function selfReplyCounts(tweets) {
 }
 export const isReply = (t) => (t.referenced_tweets || []).some((r) => r.type === 'replied_to');
 
-// ---- the ONE day-outcome rule (shared with ci/og-tape.mjs + the panel) ----
+// ---- the ONE day-outcome rule — the source of truth ----
+// ci/og-tape.mjs IMPORTS `outcome` from here; js/tape.js (browser, can't import a
+// Node module) MIRRORS this threshold and must be kept in sync. Change it in one
+// place → update the mirror. `dayDeltas` is internal (used by `tally`), not exported.
 export const FLAT_EPS = 0.05;
 export function outcome(delta) { return delta > FLAT_EPS ? 'green' : delta < -FLAT_EPS ? 'red' : 'flat'; }
-export function dayDeltas(curve, prevClose = 100) {
+function dayDeltas(curve, prevClose = 100) {
   return curve.map((p, i) => {
     const prev = i ? (curve[i - 1].close ?? curve[i - 1].value) : prevClose;
     return (p.close ?? p.value) - prev;

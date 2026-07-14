@@ -20,9 +20,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install CI generators (pinned)
         run: npm ci --prefix ci --no-audit --no-fund
-      - name: Render the current card
-        run: node ci/og-tape.mjs
-      - name: Post the weekly dispatch
+      - name: Post the weekly dispatch      # renders its own card after the guards pass
         run: node ci/post-weekly.mjs
         env:
           X_API_KEY: ${{ secrets.X_API_KEY }}

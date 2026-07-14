@@ -39,9 +39,12 @@
   }
 
   // ---- the ONE day-outcome rule (shared with the card + the posting bot) ----
+  // FLAT_EPS MUST match FLAT_EPS in ci/x-lib.mjs — the browser can't import the
+  // Node lib, so this is a hand-kept mirror. Change one → change the other.
+  var FLAT_EPS = 0.05;
   function outcomeCol(delta) {
-    return delta > 0.05 ? { fill: C.matcha, stroke: C.matchaDeep }
-      : delta < -0.05 ? { fill: C.red, stroke: C.red }
+    return delta > FLAT_EPS ? { fill: C.matcha, stroke: C.matchaDeep }
+      : delta < -FLAT_EPS ? { fill: C.red, stroke: C.red }
       : { fill: C.sand, stroke: C.sec };
   }
   function deltasOf(curve, prevClose) {
