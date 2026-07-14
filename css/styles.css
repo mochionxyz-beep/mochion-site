@@ -275,6 +275,12 @@ header.masthead{position:relative;display:flex;justify-content:space-between;ali
 .tape-share{font-family:var(--type);font-size:.78em;text-align:center;margin:10px 12px 0}
 .tape-share a{color:var(--red-deep);text-decoration:none;border-bottom:1.5px dashed var(--red-deep)}
 .tape-tick{pointer-events:none}
+
+/* ---------- the kit ---------- */
+.btn-follow--sm{min-height:0;padding:7px 16px;font-size:.82em;gap:6px}
+.kit-snippet{background:#26201C;color:#E9DFC9;font-family:var(--type);font-size:.82em;line-height:1.5;
+  padding:12px 14px;margin:10px 0 8px;overflow-x:auto;border-radius:3px;box-shadow:2px 2px 0 rgba(0,0,0,.2)}
+.kit-code{font-family:var(--type);font-size:.9em;background:#dfd3b6;padding:1px 6px;border-radius:2px;word-break:break-all}
 .tape-chart{display:block;width:100%;height:auto;margin-bottom:8px;cursor:crosshair;touch-action:pan-y}
 .tape-chart .tape-ax{font-family:var(--type);font-size:12px;fill:#6b6355}
 .tape-chart .tape-grid{stroke:#d7ccae;stroke-width:1}
