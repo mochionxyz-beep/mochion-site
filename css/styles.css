@@ -248,9 +248,33 @@ header.masthead{position:relative;display:flex;justify-content:space-between;ali
 .entry h2{margin:4px 0 10px;font-size:clamp(20px,4.2vw,28px)}
 .tape img{display:block;width:100%}
 
-/* The Tape — JS-rendered live panel (site/js/tape.js reads data/public.json) */
+/* The Tape — JS-rendered live panel (site/js/tape.js reads data/public.json).
+   Panel v2 shares the card's system: ink status band, DAY count, outcome ticks. */
 .tape-live,.tape-waiting{background:#E9DFC9;color:#26201C}
-.tape-live{padding:16px 16px 12px;position:relative}
+.tape-live{padding:0 16px 12px;position:relative}
+.tape-band{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  background:#26201C;color:#E9DFC9;margin:0 -16px 12px;padding:9px 14px;
+  font-family:var(--type);font-size:.74em;letter-spacing:.05em;text-transform:uppercase}
+.tape-band__live{font-weight:bold;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.tape-dot{width:9px;height:9px;border-radius:50%;background:#9DBB72;display:inline-block}
+@media (prefers-reduced-motion: no-preference){
+  .tape-dot{animation:tapepulse 2s steps(4) infinite}
+  @keyframes tapepulse{0%,100%{opacity:1}50%{opacity:.35}}
+}
+.tape-band__win{display:inline-flex;gap:6px}
+.tape-wbtn{font-family:var(--type);font-size:1em;letter-spacing:.05em;text-transform:uppercase;
+  background:none;border:1.5px solid #6b6355;color:#C9BD9E;padding:2px 9px;cursor:pointer;border-radius:2px}
+.tape-wbtn.is-on{background:#9DBB72;border-color:#9DBB72;color:#141414;font-weight:bold}
+.tape-wbtn:hover{border-color:#E9DFC9;color:#E9DFC9}
+.tape-wbtn.is-on:hover{color:#141414}
+.tape-band__next{color:#C9BD9E;white-space:nowrap}
+.tape-band__next .tape-cd{color:#9DBB72}
+.tape-hero{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:10px 4px 4px}
+.tape-stat--hero b{font-size:2.1em}
+.tape-stat--hero span{font-size:.7em;margin-top:6px}
+.tape-share{font-family:var(--type);font-size:.78em;text-align:center;margin:10px 12px 0}
+.tape-share a{color:var(--red-deep);text-decoration:none;border-bottom:1.5px dashed var(--red-deep)}
+.tape-tick{pointer-events:none}
 .tape-chart{display:block;width:100%;height:auto;margin-bottom:8px;cursor:crosshair;touch-action:pan-y}
 .tape-chart .tape-ax{font-family:var(--type);font-size:12px;fill:#6b6355}
 .tape-chart .tape-grid{stroke:#d7ccae;stroke-width:1}
