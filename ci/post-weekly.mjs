@@ -6,6 +6,7 @@
 
 import { readFileSync } from 'node:fs';
 import { creds, uploadCard, postTweet, tally, LINK_REPLY } from './x-lib.mjs';
+import { notify } from './notify.mjs';
 
 const DRY = (process.env.DRY_RUN || 'false').toLowerCase() === 'true';
 const c = DRY ? null : creds();
@@ -44,5 +45,6 @@ if (DRY) { console.error('weekly: DRY RUN — not posting'); process.exit(0); }
 const card = await uploadCard(c, new URL('../og/tape.png', import.meta.url).pathname);
 const tweet = await postTweet(c, text, { mediaId: card.id });
 console.error(`weekly: posted https://x.com/mochionhq/status/${tweet.id}`);
+await notify(`📮 <b>weekly dispatch posted</b>\n${text.split('\n')[0]}\nhttps://x.com/mochionhq/status/${tweet.id}`);
 await postTweet(c, LINK_REPLY, { replyTo: tweet.id });
 console.error('weekly: link reply posted. dispatch filed.');

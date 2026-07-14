@@ -1,0 +1,31 @@
+name: Notify failure
+
+# Universal net: pings Telegram when ANY automation workflow finishes with a
+# failure — including infra deaths (npm ci, runner) that happen before a script
+# runs. Belt + suspenders over the in-script alerts and GitHub's email.
+on:
+  workflow_run:
+    workflows:
+      - Deploy to Cloudflare Pages
+      - Daily stamp
+      - Weekly dispatch
+      - Monthly retro
+      - Announce dispatch
+      - Watchdog
+      - Metrics
+      - Draft weekly dispatch
+    types: [completed]
+
+jobs:
+  alert:
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ping Telegram
+        run: |
+          node ci/notify.mjs "🔴 <b>${{ github.event.workflow_run.name }}</b> failed
+          run: ${{ github.event.workflow_run.html_url }}"
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}

@@ -7,6 +7,7 @@
 
 import { readFileSync } from 'node:fs';
 import { creds, whoAmI, myRecentTweets, postTweet, LINK_REPLY } from './x-lib.mjs';
+import { notify } from './notify.mjs';
 
 const DRY = (process.env.DRY_RUN || 'false').toLowerCase() === 'true';
 
@@ -36,5 +37,6 @@ if (recent.some((t) => (t.text || '').includes(latest.title))) {
 }
 const tweet = await postTweet(c, text);
 console.error(`announce: posted https://x.com/mochionhq/status/${tweet.id}`);
+await notify(`📮 <b>dispatch announced</b>\n${latest.title}\nhttps://x.com/mochionhq/status/${tweet.id}`);
 await postTweet(c, `read it → ${url}`, { replyTo: tweet.id });
 console.error('announce: link reply posted.');

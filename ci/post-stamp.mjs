@@ -8,6 +8,7 @@
 
 import { readFileSync } from 'node:fs';
 import { creds, uploadCard, postTweet, dailyCaption, LINK_REPLY } from './x-lib.mjs';
+import { notify } from './notify.mjs';
 
 const DRY = (process.env.DRY_RUN || 'false').toLowerCase() === 'true';
 const FORCE = (process.env.FORCE || 'false').toLowerCase() === 'true';
@@ -33,10 +34,13 @@ if (DRY) { console.error('stamp: DRY RUN — not posting'); process.exit(0); }
 
 const card = await uploadCard(c, new URL('../og/tape.png', import.meta.url).pathname);
 const tweet = await postTweet(c, cap.text, { mediaId: card.id });
-console.error(`stamp: posted https://x.com/mochionhq/status/${tweet.id}  (card ${(card.bytes / 1024).toFixed(0)}KB)`);
+const url = `https://x.com/mochionhq/status/${tweet.id}`;
+console.error(`stamp: posted ${url}  (card ${(card.bytes / 1024).toFixed(0)}KB)`);
+await notify(`📮 <b>stamp posted</b> · day ${day} · ${cap.pool}\n${cap.text}\n${url}`);
 
 if ((process.env.POST_REPLY || 'false').toLowerCase() === 'true') {
   await postTweet(c, LINK_REPLY, { replyTo: tweet.id });
   console.error('stamp: link reply posted.');
+  await notify(`💬 <b>link reply</b> under day ${day}`, { loud: false });
 }
 console.error('stamp: done. the machine speaks.');

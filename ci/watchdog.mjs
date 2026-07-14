@@ -48,5 +48,13 @@ if (sum) {
     (problems.length ? problems.map((p) => `- ⚠ ${p}`).join('\n') + '\n' : 'All good. The machine is running.\n'));
 }
 
-if (problems.length) { console.error('watchdog: PROBLEMS\n' + problems.map((p) => ' - ' + p).join('\n')); process.exit(1); }
+import { notify } from './notify.mjs';
+if (problems.length) {
+  console.error('watchdog: PROBLEMS\n' + problems.map((p) => ' - ' + p).join('\n'));
+  await notify(`🔴 <b>WATCHDOG</b> — the tape may be stale\nday ${day ?? '—'} · record ${ageH == null ? '?' : ageH.toFixed(1) + 'h'} old · card ${cardKB == null ? '?' : cardKB.toFixed(0) + 'KB'}\n` + problems.map((p) => '• ' + p).join('\n'));
+  process.exit(1);
+}
 console.error(`watchdog: OK — day ${day}, record ${ageH == null ? 'n/a' : ageH.toFixed(1) + 'h'} old, card ${cardKB == null ? 'n/a' : cardKB.toFixed(0) + 'KB'}`);
+if ((process.env.HEARTBEAT || 'false').toLowerCase() === 'true') {
+  await notify(`🟢 all good · day ${day} · record ${ageH.toFixed(1)}h old`, { loud: false });
+}

@@ -18,3 +18,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check the live record + card
         run: node ci/watchdog.mjs
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # HEARTBEAT: 'true'   # uncomment for a silent daily "all good" ping

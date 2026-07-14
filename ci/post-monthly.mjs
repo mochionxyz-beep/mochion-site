@@ -6,6 +6,7 @@
 
 import { readFileSync } from 'node:fs';
 import { creds, uploadCard, postTweet, tally, LINK_REPLY } from './x-lib.mjs';
+import { notify } from './notify.mjs';
 
 const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 const DRY = (process.env.DRY_RUN || 'false').toLowerCase() === 'true';
@@ -41,5 +42,6 @@ if (DRY) { console.error('monthly: DRY RUN — not posting'); process.exit(0); }
 const card = await uploadCard(c, new URL('../og/tape.png', import.meta.url).pathname);
 const tweet = await postTweet(c, text, { mediaId: card.id });
 console.error(`monthly: posted https://x.com/mochionhq/status/${tweet.id}`);
+await notify(`📮 <b>monthly retro posted</b>\n${text.split('\n')[0]}\nhttps://x.com/mochionhq/status/${tweet.id}`);
 await postTweet(c, LINK_REPLY, { replyTo: tweet.id });
 console.error('monthly: link reply posted. month filed.');

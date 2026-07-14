@@ -9,6 +9,7 @@
 import { appendFileSync, readFileSync } from 'node:fs';
 import { creds, whoAmI, myRecentTweets, selfReplyCounts, isReply, outcome } from './x-lib.mjs';
 import { searchConsole } from './gsc.mjs';
+import { notify } from './notify.mjs';
 
 const REPO = process.env.GITHUB_REPOSITORY || 'mochionxyz-beep/mochion-site';
 const GH = process.env.GITHUB_TOKEN;
@@ -59,6 +60,17 @@ try {
 // ---- Search Console (optional) ---------------------------------------------
 const gsc = await searchConsole();
 if (gsc) row.gsc = gsc;
+
+// ---- Telegram digest (silent) — the week at a glance, incl. best/worst caption ----
+try {
+  const topQ = (row.gsc?.topQueries || [])[0];
+  const best = (row.stamps || []).filter((s) => s.impr != null).sort((a, b) => b.impr - a.impr)[0];
+  const digest = `📊 <b>weekly metrics · ${row.ts}</b>\n` +
+    `X: ${row.x?.followers ?? '—'} followers · ⭐${row.gh?.stars ?? '—'} · 👁${row.gh?.watchers ?? '—'}\n` +
+    `search: ${row.gsc?.totals?.impressions ?? '—'} impr` + (topQ ? ` · top "${topQ.q}"` : '') + `\n` +
+    `tape: day ${row.tape?.days ?? '—'}` + (best ? `\nbest post: day ${best.day} (${best.impr} impr, ${best.likes}♥, ${best.replies}💬)` : '');
+  await notify(digest, { loud: false });
+} catch (e) { console.error('metrics: notify ' + e.message); }
 
 // ---- write -----------------------------------------------------------------
 const line = JSON.stringify(row);

@@ -67,6 +67,9 @@ jobs:
           git add log.html
           git commit -q -m "draft: weekly dispatch ($WEEK)"
           git push -f origin "$BRANCH"
-          gh pr create --title "Weekly dispatch — $WEEK" \
+          PRURL=$(gh pr create --title "Weekly dispatch — $WEEK" \
             --body "Auto-drafted from this week's commits + the tape + box devlog. **Review the voice, edit freely, then merge** — merging publishes it to the feed, JSON-LD, and X. Close without merging on a quiet week." \
-            --head "$BRANCH" --base main || echo "PR may already exist for $BRANCH"
+            --head "$BRANCH" --base main 2>/dev/null) || PRURL=$(gh pr view "$BRANCH" --json url -q .url 2>/dev/null)
+          [ -n "$PRURL" ] && TELEGRAM_BOT_TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}" TELEGRAM_CHAT_ID="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            node ci/notify.mjs "📝 <b>weekly dispatch drafted</b> — review &amp; merge:
+          $PRURL" || true
