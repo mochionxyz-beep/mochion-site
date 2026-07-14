@@ -1,0 +1,41 @@
+name: Smart link reply
+
+# A3 — once a day, drop the tape link UNDER any of our posts that has earned an
+# audience (the daily stamp ships link-less because URL posts cost ~13x). Runs at
+# 14:00 UTC — ~14h after the ~00:06 stamp, enough time to know if it popped.
+# Idempotent + capped, so a quiet day posts nothing and costs one cheap read.
+on:
+  schedule:
+    - cron: '0 14 * * *'      # daily 14:00 UTC
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: log the picks without replying
+        default: 'true'
+
+concurrency:
+  group: smart-reply
+  cancel-in-progress: false
+
+jobs:
+  smart-reply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install CI generators (pinned)
+        run: npm ci --prefix ci --no-audit --no-fund
+      - name: Link the posts that earned it
+        run: node ci/smart-reply.mjs
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+          # thresholds — tune in the monthly review (a post crossing ANY one earns the link)
+          LIKES_MIN: '25'
+          REPLIES_MIN: '8'
+          IMPR_MIN: '5000'
+          MAX_REPLIES: '2'

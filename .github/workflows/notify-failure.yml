@@ -14,6 +14,7 @@ on:
       - Watchdog
       - Metrics
       - Draft weekly dispatch
+      - Smart link reply
     types: [completed]
 
 jobs:
