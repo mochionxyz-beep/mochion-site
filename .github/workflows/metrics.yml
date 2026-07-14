@@ -39,6 +39,9 @@ jobs:
         if: ${{ inputs.dry_run != 'true' }}
         run: |
           if ! git diff --quiet data/metrics.jsonl; then
-            git -c user.name='mochion' -c user.email='dev@mochion.xyz' commit -q -m "metrics: weekly row" data/metrics.jsonl
+            git config user.name mochion
+            git config user.email dev@mochion.xyz
+            git commit -q -m "metrics: weekly row" data/metrics.jsonl
+            git pull --rebase origin main    # the box may have pushed data/public.json since checkout
             git push
           fi

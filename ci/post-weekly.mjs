@@ -42,7 +42,7 @@ const text = `a week at the workshop: 7 days printed. ${parts.join(', ')}. day $
 console.error('weekly: text =\n' + text);
 if (DRY) { console.error('weekly: DRY RUN — not posting'); process.exit(0); }
 
-const card = await uploadCard(c, new URL('../og/tape.png', import.meta.url).pathname);
+const card = await uploadCard(c, new URL('../og/tape.png', import.meta.url));
 const tweet = await postTweet(c, text, { mediaId: card.id });
 console.error(`weekly: posted https://x.com/mochionhq/status/${tweet.id}`);
 await notify(`📮 <b>weekly dispatch posted</b>\n${text.split('\n')[0]}\nhttps://x.com/mochionhq/status/${tweet.id}`);

@@ -40,8 +40,11 @@ try {
   // replies = reply_count MINUS our own self-reply (the link reply isn't engagement).
   const d = JSON.parse(readFileSync(new URL('../data/public.json', import.meta.url), 'utf8'));
   const curve = d.equity_curve || [];
-  const outByDay = {};                                  // day → outcome, for classifying past posts
-  curve.forEach((p, i) => { const prev = i ? (curve[i - 1].close ?? curve[i - 1].value) : 100; outByDay[i + 1] = outcome((p.close ?? p.value) - prev); });
+  const outByDay = {};                                  // day-number → outcome, for classifying past posts.
+  // align the LAST curve entry to days_live and walk back, so the key matches the tweet's "day N"
+  // even when days_live != curve.length (--since re-index, or a missing day).
+  const base = (d.days_live ?? curve.length) - curve.length + 1;
+  curve.forEach((p, i) => { const prev = i ? (curve[i - 1].close ?? curve[i - 1].value) : 100; outByDay[base + i] = outcome((p.close ?? p.value) - prev); });
   row.stamps = recent.map((t) => {
     const m = /^day (\d+)\./.exec(t.text || '');
     if (!m || isReply(t)) return null;                  // must be an original stamp, not a reply

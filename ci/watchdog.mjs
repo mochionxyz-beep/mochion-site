@@ -56,5 +56,5 @@ if (problems.length) {
 }
 console.error(`watchdog: OK — day ${day}, record ${ageH == null ? 'n/a' : ageH.toFixed(1) + 'h'} old, card ${cardKB == null ? 'n/a' : cardKB.toFixed(0) + 'KB'}`);
 if ((process.env.HEARTBEAT || 'false').toLowerCase() === 'true') {
-  await notify(`🟢 all good · day ${day} · record ${ageH.toFixed(1)}h old`, { loud: false });
+  await notify(`🟢 all good · day ${day ?? '—'} · record ${ageH == null ? '?' : ageH.toFixed(1) + 'h'} old`, { loud: false });
 }

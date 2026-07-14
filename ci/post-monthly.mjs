@@ -17,10 +17,13 @@ if (!d || d.status === 'no_data' || !d.equity_curve?.length) { console.error('mo
 const ageH = (Date.now() - new Date(d.generated_at).getTime()) / 36e5;
 if (!(ageH >= 0 && ageH < 48)) { console.error(`monthly: data ${ageH.toFixed(1)}h old — skip`); process.exit(0); }
 
-// previous month relative to the record's last day (timezone-proof)
-const asOf = new Date(d.as_of + 'T00:00:00Z');
-const y = asOf.getUTCFullYear(), m = asOf.getUTCMonth();       // 0-based
-const pm = m === 0 ? 11 : m - 1, py = m === 0 ? y - 1 : y;
+// the last COMPLETE calendar month, based on the RUN date (cron fires on the 1st).
+// NB: with --lag-days, as_of on the 1st is already last month's last day, so basing this on
+// as_of and subtracting a month double-counts (posts the month before the one that just ended).
+// "now" (the runner is UTC) gives the in-progress month; -1 is the month that just ended.
+const now = new Date();
+const y = now.getUTCFullYear(), m = now.getUTCMonth();         // 0-based, the in-progress month
+const pm = m === 0 ? 11 : m - 1, py = m === 0 ? y - 1 : y;     // the month that just ended
 const key = `${py}-${String(pm + 1).padStart(2, '0')}`;
 const full = d.equity_curve;
 const idxs = full.map((p, i) => (String(p.date).slice(0, 7) === key ? i : -1)).filter((i) => i >= 0);
@@ -39,7 +42,7 @@ const text = `${MONTHS[pm]}, printed and filed. ${idxs.length} days on the tape 
 console.error('monthly: text =\n' + text);
 if (DRY) { console.error('monthly: DRY RUN — not posting'); process.exit(0); }
 
-const card = await uploadCard(c, new URL('../og/tape.png', import.meta.url).pathname);
+const card = await uploadCard(c, new URL('../og/tape.png', import.meta.url));
 const tweet = await postTweet(c, text, { mediaId: card.id });
 console.error(`monthly: posted https://x.com/mochionhq/status/${tweet.id}`);
 await notify(`📮 <b>monthly retro posted</b>\n${text.split('\n')[0]}\nhttps://x.com/mochionhq/status/${tweet.id}`);

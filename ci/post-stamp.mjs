@@ -32,7 +32,7 @@ console.error(`stamp: day ${day} · as_of ${d.as_of} · [${cap.pool}#${cap.idx}]
 console.error(`stamp: text = "${cap.text}"`);
 if (DRY) { console.error('stamp: DRY RUN — not posting'); process.exit(0); }
 
-const card = await uploadCard(c, new URL('../og/tape.png', import.meta.url).pathname);
+const card = await uploadCard(c, new URL('../og/tape.png', import.meta.url));
 const tweet = await postTweet(c, cap.text, { mediaId: card.id });
 const url = `https://x.com/mochionhq/status/${tweet.id}`;
 console.error(`stamp: posted ${url}  (card ${(card.bytes / 1024).toFixed(0)}KB)`);
