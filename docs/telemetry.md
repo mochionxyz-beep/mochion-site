@@ -119,6 +119,28 @@ Field notes:
 Rendered client-side (same pattern as The Tape). **Exclude the `mochion-data` bot author from all
 counts.** Aggregate only — repo names never appear in the JSON.
 
+## `devlog.json` schema — sanitized trading-repo digest (box airlock)
+Feeds the site's **weekly dispatch draft** (`ci/draft-dispatch.mjs`) with Cast-voiced, sanitized
+one-liners about the week's trading-side work — WITHOUT giving the site any trading-repo access.
+Produced ONLY on the box by `ops/export_devlog.py` from commit **subjects** (never diffs/bodies),
+committed by the same `mochion-data` daily job.
+```json
+{
+  "week_start": "2026-07-07",
+  "stations": [
+    { "cast": "dispatcher", "changes": 6, "highlights": ["got a little more reliable", "cleaned up its bench"] },
+    { "cast": "archivist",  "changes": 3, "highlights": ["tightened its checks"] }
+  ]
+}
+```
+Sanitization (hard, runs on the box): repo→Cast mapping (real repo names never leave the box);
+owner denylist (strategy names / symbols / hosts); generic scrubs (tickers, $/% figures, paths,
+IPs, URLs, emails, hashes, secret-words); **conservative default — any subject not provably
+innocuous collapses to a count, never a highlight.** FORBIDDEN in the JSON: repo names, authors,
+hashes, dates finer than the week, any number that isn't a plain change-count, any symbol/venue/
+strategy/figure. `{"status":"no_data",…}` before the box deploys. The weekly draft is a PR the
+owner reviews — a second human backstop over the sanitizer.
+
 ## Rendering (site side — vanilla JS, self-hosted, no CDN)
 `site/js/tape.js` fetches `/data/public.json` and draws:
 - an inline **SVG equity curve** (indexed-100), in the comic style — render `equity_curve[]` as daily

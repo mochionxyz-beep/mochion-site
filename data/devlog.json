@@ -1,0 +1,2 @@
+{ "week_start": null, "stations": [], "status": "no_data",
+  "note": "populated by the box airlock (ops/export_devlog.py) once deployed." }

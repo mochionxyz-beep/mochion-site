@@ -1,0 +1,20 @@
+name: Watchdog
+
+# Proves "updated daily" is actually kept. Runs 75 min after the box's 00:05 UTC
+# publish; a red run emails the account (repo issues are off — email is the bell).
+on:
+  schedule:
+    - cron: '20 1 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: watchdog
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the live record + card
+        run: node ci/watchdog.mjs

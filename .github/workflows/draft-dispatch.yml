@@ -1,0 +1,72 @@
+name: Draft weekly dispatch
+
+# Fridays: turn the week's commits + tape + box devlog into a house-voice
+# build-log entry and open it as a PR. Owner merges = published everywhere
+# (deploy regenerates feed + JSON-LD; announce posts to X). Quiet weeks: no PR.
+on:
+  schedule:
+    - cron: '0 12 * * 5'      # Fridays 12:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - name: Gather the week's site commits
+        id: gather
+        run: |
+          {
+            echo 'commits<<EOF'
+            git log --since='8 days ago' --no-merges --format='%s' || true
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Render the draft article
+        id: draft
+        env:
+          DIGEST_COMMITS: ${{ steps.gather.outputs.commits }}
+        run: |
+          if node ci/draft-dispatch.mjs > /tmp/article.html 2>/tmp/draft.log; then
+            echo "have_draft=true" >> "$GITHUB_OUTPUT"
+          else
+            code=$?
+            if [ "$code" = "3" ]; then echo "quiet week — no PR"; echo "have_draft=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+            cat /tmp/draft.log; exit $code
+          fi
+          cat /tmp/draft.log
+
+      - name: Insert the article + open a PR
+        if: steps.draft.outputs.have_draft == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          WEEK=$(date -u +%G-W%V)
+          BRANCH="dispatch/$WEEK"
+          # insert the new article right after <main> ... first "The Build Log" banner block,
+          # before the first existing stars/article — use the activity panel as the anchor.
+          node -e '
+            const fs=require("fs");
+            const html=fs.readFileSync("log.html","utf8");
+            const article=fs.readFileSync("/tmp/article.html","utf8").replace(/\s+$/,"");
+            const anchor="DRAFT-ANCHOR (draft-dispatch inserts the new entry immediately after this comment). -->";
+            const i=html.indexOf(anchor);
+            if(i<0){console.error("draft anchor not found in log.html");process.exit(1);}
+            const at=i+anchor.length;
+            const out=html.slice(0,at)+"\n\n"+article+"\n"+html.slice(at);
+            fs.writeFileSync("log.html",out);
+          '
+          git config user.name mochion; git config user.email dev@mochion.xyz
+          git checkout -b "$BRANCH"
+          git add log.html
+          git commit -q -m "draft: weekly dispatch ($WEEK)"
+          git push -f origin "$BRANCH"
+          gh pr create --title "Weekly dispatch — $WEEK" \
+            --body "Auto-drafted from this week's commits + the tape + box devlog. **Review the voice, edit freely, then merge** — merging publishes it to the feed, JSON-LD, and X. Close without merging on a quiet week." \
+            --head "$BRANCH" --base main || echo "PR may already exist for $BRANCH"

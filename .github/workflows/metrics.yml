@@ -1,0 +1,42 @@
+name: Metrics
+
+on:
+  schedule:
+    - cron: '40 0 * * 1'      # Mondays 00:40 UTC
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: print the row without committing
+        default: 'true'
+
+concurrency:
+  group: metrics
+  cancel-in-progress: false
+
+permissions:
+  contents: write            # append + commit data/metrics.jsonl
+
+jobs:
+  metrics:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install CI generators (pinned)
+        run: npm ci --prefix ci --no-audit --no-fund
+      - name: Collect metrics
+        run: node ci/metrics.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          GSC_SA_KEY: ${{ secrets.GSC_SA_KEY }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+      - name: Commit the row
+        if: ${{ inputs.dry_run != 'true' }}
+        run: |
+          if ! git diff --quiet data/metrics.jsonl; then
+            git -c user.name='mochion' -c user.email='dev@mochion.xyz' commit -q -m "metrics: weekly row" data/metrics.jsonl
+            git push
+          fi

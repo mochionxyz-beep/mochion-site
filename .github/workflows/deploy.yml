@@ -29,10 +29,17 @@ jobs:
         run: |
           node ci/og-tape.mjs || { mkdir -p og; cp assets/og/og-index.jpg og/tape.png; echo "og card render failed - shipped static fallback"; }
 
-      # Atom feed — FATAL: only hand edits to log.html can break it, and that's
-      # exactly the push that should go red.
-      - name: Build Atom feed
+      # Atom feed + auto-derived JSON-LD — FATAL: only hand edits to log.html can
+      # break it, and that's exactly the push that should go red.
+      - name: Build Atom feed + JSON-LD
         run: node ci/build-feed.mjs
+
+      # kit zip can never drift from its source assets — rebuild if any changed
+      - name: Rebuild the kit zip if its inputs changed
+        run: |
+          cd assets/kit
+          rm -f mochion-kit.zip
+          zip -X -q mochion-kit.zip pfp-*.png mochion-x-banner.png mochi-seal.png LICENSE-ART.txt
 
       # unfurl caches key on the exact og:image URL, and the CDN edge caches
       # css/js for hours — a fresh ?v= per deploy makes both pick up changes
@@ -54,7 +61,19 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
+      # tell IndexNow (Bing/DuckDuckGo/Yandex) to re-crawl — minutes, not weeks.
+      # Best-effort; Google ignores it (sitemap covers Google).
+      - name: Ping IndexNow
+        run: |
+          KEY=$(ls *.txt 2>/dev/null | grep -E '^[0-9a-f]{32}\.txt$' | head -1 | sed 's/\.txt$//')
+          [ -n "$KEY" ] && curl -s -m 30 "https://api.indexnow.org/indexnow?url=https://mochion.xyz/&key=$KEY" -o /dev/null || true
+
       # third-party timestamp: every daily record lands in the Internet Archive.
-      # Best-effort — the archive being slow must not fail the deploy.
+      # Home daily; /log and /kit on Sundays (keeps daily deploys fast). Best-effort.
       - name: Snapshot to the Wayback Machine
-        run: curl -s -m 60 "https://web.archive.org/save/https://mochion.xyz/" -o /dev/null || true
+        run: |
+          curl -s -m 60 "https://web.archive.org/save/https://mochion.xyz/" -o /dev/null || true
+          if [ "$(date -u +%u)" = "7" ]; then
+            curl -s -m 60 "https://web.archive.org/save/https://mochion.xyz/log" -o /dev/null || true
+            curl -s -m 60 "https://web.archive.org/save/https://mochion.xyz/kit" -o /dev/null || true
+          fi

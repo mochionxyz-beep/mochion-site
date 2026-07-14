@@ -69,3 +69,19 @@ ${entries.map((e) => `  <entry>
 
 writeFileSync(new URL('../feed.xml', import.meta.url), xml);
 console.error(`feed: wrote feed.xml with ${entries.length} entries (latest ${entries[0].date})`);
+
+// ---- regenerate the Blog/BlogPosting JSON-LD in log.html from the same entries ----
+// Publishing a log entry now derives the feed AND the structured data — no hand edits.
+const jsonld = {
+  '@context': 'https://schema.org', '@type': 'Blog', name: 'Mochion build log', url: PAGE,
+  author: { '@type': 'Organization', name: 'Mochion', url: `${SITE}/` },
+  blogPost: entries.map((e) => ({ '@type': 'BlogPosting', headline: e.title, datePublished: e.date, url: `${PAGE}#${e.id}` })),
+};
+const block = '<script type="application/ld+json">\n  ' + JSON.stringify(jsonld, null, 2).replace(/\n/g, '\n  ') + '\n  </script>';
+const marker = /<!-- JSONLD:START -->[\s\S]*?<!-- JSONLD:END -->/;
+if (marker.test(html)) {
+  writeFileSync(new URL('../log.html', import.meta.url), html.replace(marker, `<!-- JSONLD:START -->\n  ${block}\n  <!-- JSONLD:END -->`));
+  console.error('feed: regenerated log.html JSON-LD from entries');
+} else {
+  console.error('feed: WARNING — no JSONLD:START/END markers in log.html; skipped JSON-LD regen');
+}

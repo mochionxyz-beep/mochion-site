@@ -1,0 +1,32 @@
+name: Announce dispatch
+
+# When a new build-log entry ships, post it to X (idempotent — skips if already announced).
+on:
+  push:
+    branches: [main]
+    paths: [log.html]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: log what would post, without posting
+        default: 'true'
+
+concurrency:
+  group: announce
+  cancel-in-progress: false
+
+jobs:
+  announce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install CI generators (pinned)
+        run: npm ci --prefix ci --no-audit --no-fund
+      - name: Announce the latest dispatch
+        run: node ci/announce.mjs
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}

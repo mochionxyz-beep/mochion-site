@@ -1,0 +1,32 @@
+name: Weekly dispatch
+
+on:
+  schedule:
+    - cron: '0 16 * * 0'      # Sundays 16:00 UTC (noon ET)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: log what would post, without posting
+        default: 'true'
+
+concurrency:
+  group: weekly
+  cancel-in-progress: false
+
+jobs:
+  weekly:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install CI generators (pinned)
+        run: npm ci --prefix ci --no-audit --no-fund
+      - name: Render the current card
+        run: node ci/og-tape.mjs
+      - name: Post the weekly dispatch
+        run: node ci/post-weekly.mjs
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}

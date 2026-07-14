@@ -20,17 +20,35 @@
   <meta property="og:image:alt" content="Mochi asleep in an armchair beside the ticker — the night shift at Mochion HQ">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@mochionhq">
+  <!-- JSONLD:START -->
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"Blog","name":"Mochion build log",
-   "url":"https://mochion.xyz/log",
-   "author":{"@type":"Organization","name":"Mochion","url":"https://mochion.xyz/"},
-   "blogPost":[
-     {"@type":"BlogPosting","headline":"Our own README was lying to us",
-      "datePublished":"2026-07-08","url":"https://mochion.xyz/log#2026-07-08-readme-lying"},
-     {"@type":"BlogPosting","headline":"A bunch of tests kept failing for a silly reason",
-      "datePublished":"2026-07-08","url":"https://mochion.xyz/log#2026-07-08-flaky-tests"}
-   ]}
+  {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "name": "Mochion build log",
+    "url": "https://mochion.xyz/log",
+    "author": {
+      "@type": "Organization",
+      "name": "Mochion",
+      "url": "https://mochion.xyz/"
+    },
+    "blogPost": [
+      {
+        "@type": "BlogPosting",
+        "headline": "Our own README was lying to us",
+        "datePublished": "2026-07-08",
+        "url": "https://mochion.xyz/log#2026-07-08-readme-lying"
+      },
+      {
+        "@type": "BlogPosting",
+        "headline": "A bunch of tests kept failing for a silly reason",
+        "datePublished": "2026-07-08",
+        "url": "https://mochion.xyz/log#2026-07-08-flaky-tests"
+      }
+    ]
+  }
   </script>
+  <!-- JSONLD:END -->
 </head>
 <body>
 <div class="crops"><i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i></div>
@@ -55,11 +73,14 @@
     <h1 class="banner">The Build Log</h1>
     <p class="pron-tag" style="text-align:center">dispatches from the workshop — what broke, what got fixed, and why. No varnish.</p>
 
-    <!-- AUTHORING CONTRACT (ci/build-feed.mjs parses this page into /feed.xml at deploy):
-         each entry is an article with class="entry" and an id of the form YYYY-MM-DD-slug,
-         containing exactly one time[datetime=YYYY-MM-DD] and one h2. IDs are permalinks AND
-         feed GUIDs - never change one after it ships. Also add each new entry to the
-         BlogPosting JSON-LD in the head. -->
+    <!-- AUTHORING CONTRACT (ci/build-feed.mjs parses this page into /feed.xml + regenerates
+         the JSON-LD at deploy): each entry is an article with class="entry" and an id of the
+         form YYYY-MM-DD-slug, containing exactly one time[datetime=YYYY-MM-DD] and one h2.
+         IDs are permalinks AND feed GUIDs - never change one after it ships. The head JSON-LD
+         is AUTO-DERIVED from these entries (between the JSONLD markers) - do not hand-edit it.
+         New draft entries arrive weekly as a PR (ci/draft-dispatch.mjs); merge or edit + merge.
+         DRAFT-ANCHOR (draft-dispatch inserts the new entry immediately after this comment). -->
+
 
     <figure class="panel--art tape" id="activity-panel">
       <div class="tape-waiting"><b>The build feed prints here.</b><span>Loading the latest counts…</span></div>

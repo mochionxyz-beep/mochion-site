@@ -102,7 +102,9 @@ header.masthead{position:relative;display:flex;justify-content:space-between;ali
   background:var(--red);color:#fff;border:2px solid var(--outline);box-shadow:var(--sh);
   display:grid;place-items:center;transform:rotate(-12deg);font-family:var(--disp);font-size:.9em;line-height:.8;text-align:center}
 .price small{display:block;font-family:var(--type);font-size:.34em;letter-spacing:.05em}
-@media (max-width:560px){ .price{display:none} }
+/* the 10¢ roundel is decoration; the nav is function. Hide it before it can
+   crowd the nav (5 links since the Kit shipped) at mid widths. */
+@media (max-width:1100px){ .price{display:none} }
 
 /* ---------- ticker tape ---------- */
 .tape-wrap{position:relative;margin:0 -20px;border-block:var(--bw) solid var(--outline);
