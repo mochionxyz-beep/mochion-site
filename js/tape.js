@@ -70,6 +70,35 @@
     return { win: win, prevClose: prev };
   }
 
+  // window-local stats — everything the daily curve can honestly reconstruct.
+  // (trade-level stats — profit factor, trade count, trade win-rate — need
+  // per-trade data the curve doesn't carry, so those stay all-time: see the
+  // "full record" line in render(). Same close-vs-prev-close basis as the chart.)
+  function windowStats(win, prevClose) {
+    var val = function (p) { return p.close != null ? p.close : p.value; };
+    var n = win.length;
+    if (!n) return { ret: null, maxdd: null, best: null, worst: null, green: 0, red: 0, flat: 0, winRate: null, days: 0 };
+    var last = val(win[n - 1]);
+    var ret = prevClose ? (last - prevClose) / prevClose * 100 : null;
+    var peak = prevClose, maxdd = 0, best = null, worst = null, g = 0, r = 0, f = 0, prev = prevClose;
+    win.forEach(function (p) {
+      var v = val(p);
+      if (v > peak) peak = v;
+      var dd = peak ? (v - peak) / peak * 100 : 0; if (dd < maxdd) maxdd = dd;
+      var delta = v - prev;   // index points = % of the 100 base — matches the box + the outcome rule
+      if (best == null || delta > best) best = delta;
+      if (worst == null || delta < worst) worst = delta;
+      if (delta > FLAT_EPS) g++; else if (delta < -FLAT_EPS) r++; else f++;
+      prev = v;
+    });
+    return { ret: ret, maxdd: maxdd, best: best, worst: worst, green: g, red: r, flat: f, winRate: g / n * 100, days: n };
+  }
+  function winLabel(since) {
+    return WIN === 'all' ? 'since ' + (since || 'start')
+      : WIN === 'ytd' ? 'year to date'
+      : 'last ' + WIN + ' days';
+  }
+
   // ---- chart (candles + grid + %-axis + ticks row), all in one SVG ----
   function chartSVG(curve, prevClose) {
     var n = curve.length;
@@ -81,6 +110,8 @@
       highs.push(useCandles ? p.high : (p.value != null ? p.value : p.close));
     });
     var min = Math.min.apply(null, lows), max = Math.max.apply(null, highs);
+    var base = prevClose || 100;                             // the window's entry point = 0%
+    min = Math.min(min, base); max = Math.max(max, base);    // always keep the 0% baseline in view
     var pad = (max - min) * 0.12 || 2; min -= pad; max += pad;
     function Y(v) { return CH.PT + (CH.H - CH.PT - CH.PB) * (1 - (v - min) / (max - min || 1)); }
     var last = curve[n - 1], dd = deltasOf(curve, prevClose), body = '';
@@ -107,9 +138,9 @@
 
     // gridlines + ticks: y-axis = % change from the 100 start; x-axis = dates at intervals
     var grid = '';
-    niceTicks(min - 100, max - 100, 4).forEach(function (t) {
-      var yy = Y(100 + t), base = Math.abs(t) < 1e-6;
-      grid += '<line x1="' + CH.PL + '" y1="' + yy.toFixed(1) + '" x2="' + (CH.W - CH.PR) + '" y2="' + yy.toFixed(1) + '" class="tape-grid' + (base ? ' tape-grid--base' : '') + '"/>' +
+    niceTicks((min - base) / base * 100, (max - base) / base * 100, 4).forEach(function (t) {
+      var raw = base * (1 + t / 100), yy = Y(raw), isBase = Math.abs(t) < 1e-6;
+      grid += '<line x1="' + CH.PL + '" y1="' + yy.toFixed(1) + '" x2="' + (CH.W - CH.PR) + '" y2="' + yy.toFixed(1) + '" class="tape-grid' + (isBase ? ' tape-grid--base' : '') + '"/>' +
         '<text x="' + (CH.PL - 6) + '" y="' + (yy + 3.5).toFixed(1) + '" text-anchor="end" class="tape-ax">' + (t > 0 ? '+' : '') + (Math.round(t * 10) / 10) + '%</text>';
     });
     var xn = Math.min(6, n), xstep = (n - 1) / (xn - 1 || 1);
@@ -127,14 +158,14 @@
       ticks += '<rect class="tape-tick" data-i="' + i + '" x="' + (X(i, n) - tw / 2).toFixed(1) + '" y="' + ty + '" width="' + tw.toFixed(1) + '" height="7" fill="' + outcomeCol(delta).fill + '"/>';
     });
 
-    return '<svg class="tape-chart" viewBox="0 0 ' + CH.W + ' ' + CH.H + '" role="img" aria-label="Account equity, percent change from the start (indexed to 100)">' +
+    return '<svg class="tape-chart" viewBox="0 0 ' + CH.W + ' ' + CH.H + '" role="img" aria-label="Account equity — percent change over the selected window, starting at 0%">' +
       grid + body + ticks +
       '<line class="tape-cursor" y1="' + CH.PT + '" y2="' + (CH.H - CH.PB) + '" style="display:none"/>' +
     '</svg>';
   }
 
   // ---- hover/touch: guide line + tooltip; taps update the deep link ----
-  function wireChart(curve) {
+  function wireChart(curve, base) {
     var host = el.querySelector('.tape-live'), svg = el.querySelector('.tape-chart');
     if (!host || !svg) return;
     var n = curve.length, cursor = svg.querySelector('.tape-cursor');
@@ -142,10 +173,12 @@
     host.appendChild(tip);
     function showAt(i, clientX, clientY) {
       i = Math.max(0, Math.min(n - 1, i));
-      var p = curve[i], close = (p.close != null ? p.close : p.value), ret = close - 100, cx = X(i, n);
+      var p = curve[i], b = base || 100, close = (p.close != null ? p.close : p.value);
+      var rel = function (v) { return (v - b) / b * 100; }, sgn = function (x) { return (x >= 0 ? '+' : '') + x.toFixed(2) + '%'; };
+      var ret = rel(close), cx = X(i, n);
       cursor.setAttribute('x1', cx); cursor.setAttribute('x2', cx); cursor.style.display = '';
-      var extra = (p.high != null) ? ('  ·  H ' + p.high.toFixed(2) + ' L ' + p.low.toFixed(2)) : '';
-      tip.innerHTML = '<b>' + esc(p.date) + '</b>  ' + (ret >= 0 ? '+' : '') + ret.toFixed(2) + '%' + extra;
+      var extra = (p.high != null) ? ('  ·  H ' + sgn(rel(p.high)) + ' L ' + sgn(rel(p.low))) : '';
+      tip.innerHTML = '<b>' + esc(p.date) + '</b>  ' + sgn(ret) + extra;
       tip.style.display = '';
       var hr = host.getBoundingClientRect(), r = svg.getBoundingClientRect();
       var lx = (clientX != null ? clientX : r.left + (cx / CH.W) * r.width) - hr.left;
@@ -204,6 +237,7 @@
       var s = d.summary || {};
       var full = d.equity_curve || [];
       var sl = windowSlice(full);
+      var ws = windowStats(sl.win, sl.prevClose);
       var chart = sl.win.length ? chartSVG(sl.win, sl.prevClose) : '';
       var day = d.days_live != null ? d.days_live : full.length;
       var caveat = (d.data_quality && d.data_quality.realized_reconciles === false)
@@ -216,6 +250,14 @@
       var shareText = 'day ' + day + ' of a machine that shows its work. wins, losses, all of it, in the open.';
       var shareHref = 'https://x.com/intent/post?text=' + encodeURIComponent(shareText) +
         '&url=' + encodeURIComponent('https://mochion.xyz/#tape-' + (d.as_of || ''));
+      // trade-level stats can't be reconstructed from the daily curve, so the underlying
+      // record stays all-time — and doubles as the honesty anchor under any short window.
+      var rec = [day + (day === 1 ? ' day' : ' days')];
+      if (s.closed_trades != null) rec.push(s.closed_trades + ' trades');
+      if (s.win_rate_pct != null) rec.push(s.win_rate_pct.toFixed(0) + '% trade-win');
+      if (s.profit_factor != null) rec.push(s.profit_factor.toFixed(2) + ' profit factor');
+      if (s.sharpe != null) rec.push('sharpe ' + s.sharpe.toFixed(2));
+      var allTimeLine = '<p class="tape-basis tape-alltime">the full record · ' + esc(rec.join(' · ')) + '</p>';
 
       el.innerHTML =
         '<div class="tape-live">' +
@@ -226,23 +268,24 @@
           '</div>' +
           chart +
           '<div class="tape-hero">' +
-            stat(pct(s.cumulative_return_pct), 'return since ' + (d.since || 'start'), true) +
-            stat(pct(s.max_drawdown_pct), 'max drawdown', true) +
+            stat(pct(ws.ret), 'return · ' + winLabel(d.since), true) +
+            stat(pct(ws.maxdd), 'max drawdown · ' + winLabel(d.since), true) +
           '</div>' +
           '<div class="tape-summary">' +
-            stat(s.sharpe == null ? '—' : s.sharpe.toFixed(2), 'sharpe') +
-            stat(s.win_rate_pct == null ? '—' : s.win_rate_pct.toFixed(0) + '%', 'win rate') +
-            stat(s.profit_factor == null ? '—' : s.profit_factor.toFixed(2), 'profit factor') +
-            stat(s.closed_trades == null ? '—' : String(s.closed_trades), 'closed trades') +
-            stat(pct(s.best_day_pct), 'best day') +
-            stat(pct(s.worst_day_pct), 'worst day') +
+            stat(pct(ws.best), 'best day') +
+            stat(pct(ws.worst), 'worst day') +
+            stat(String(ws.green), 'green days') +
+            stat(String(ws.red), 'red days') +
+            stat(String(ws.flat), 'flat days') +
+            stat(ws.winRate == null ? '—' : ws.winRate.toFixed(0) + '%', 'win rate') +
           '</div>' + caveat +
+          allTimeLine +
           (basis ? '<p class="tape-basis">' + basis + '</p>' : '') +
           '<p class="tape-stamp">' + stamp + '</p>' +
           '<p class="tape-share"><a href="' + shareHref + '" rel="noopener">share this tape →</a></p>' +
         '</div>';
 
-      if (chart) wireChart(sl.win);
+      if (chart) wireChart(sl.win, sl.prevClose);
       startCountdown(d.generated_at);
       el.querySelectorAll('.tape-wbtn').forEach(function (b) {
         b.addEventListener('click', function () { WIN = b.getAttribute('data-w'); render(); });
