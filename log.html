@@ -35,6 +35,18 @@
     "blogPost": [
       {
         "@type": "BlogPosting",
+        "headline": "The machine learned to post its own tape",
+        "datePublished": "2026-07-14",
+        "url": "https://mochion.xyz/log#2026-07-14-machine-learned-to-post"
+      },
+      {
+        "@type": "BlogPosting",
+        "headline": "We opened the workshop doors — and cleaned up before letting people in",
+        "datePublished": "2026-07-13",
+        "url": "https://mochion.xyz/log#2026-07-13-opened-the-workshop-doors"
+      },
+      {
+        "@type": "BlogPosting",
         "headline": "Our own README was lying to us",
         "datePublished": "2026-07-08",
         "url": "https://mochion.xyz/log#2026-07-08-readme-lying"
@@ -79,12 +91,56 @@
          IDs are permalinks AND feed GUIDs - never change one after it ships. The head JSON-LD
          is AUTO-DERIVED from these entries (between the JSONLD markers) - do not hand-edit it.
          New draft entries arrive weekly as a PR (ci/draft-dispatch.mjs); merge or edit + merge.
-         DRAFT-ANCHOR (draft-dispatch inserts the new entry immediately after this comment). -->
+         New entries go in the dated list below (at the DRAFT-ANCHOR marker), newest first. -->
 
 
     <figure class="panel--art tape" id="activity-panel">
       <div class="tape-waiting"><b>The build feed prints here.</b><span>Loading the latest counts…</span></div>
     </figure>
+
+    <!-- DRAFT-ANCHOR (draft-dispatch inserts the new entry immediately after this comment). -->
+
+    <div class="stars" aria-hidden="true">✦ ✦ ✦</div>
+
+    <article class="entry" id="2026-07-14-machine-learned-to-post">
+      <time datetime="2026-07-14">Issue #0 · 2026-07-14</time>
+      <h2>The machine learned to post its own tape</h2>
+      <div class="caption">
+        <span class="kicker">What we built</span>
+        Every night the machine prints the day's record. Now it also posts it — a little
+        card with the last month of candles and the day count goes out on its own, in the
+        machine's own sober voice. Green day, red day, boring day: it writes the honest
+        line and files it. Nobody has to remember.
+      </div>
+      <div class="caption">
+        <span class="kicker">What broke first</span>
+        The first automated post failed — the account had no posting credits, so the
+        machine talked to a wall for a night. We funded it, added a retry so a hiccup
+        can't cost a day, and wired a watchdog that shouts if the tape ever goes stale.
+        Boring plumbing. Boring is exactly what you want here.
+      </div>
+    </article>
+
+    <div class="stars" aria-hidden="true">✦ ✦ ✦</div>
+
+    <article class="entry" id="2026-07-13-opened-the-workshop-doors">
+      <time datetime="2026-07-13">Issue #0 · 2026-07-13</time>
+      <h2>We opened the workshop doors — and cleaned up before letting people in</h2>
+      <div class="caption">
+        <span class="kicker">What changed</span>
+        The whole workshop is public now. Every file, and every day of the tape's data,
+        lives in the open on a history that refuses to be rewritten — so you don't have to
+        trust our screenshots. Open the record and diff any two days yourself.
+      </div>
+      <div class="caption">
+        <span class="kicker">What we fixed before opening</span>
+        Before the doors opened we found a few of our own early save-stamps had leaked the
+        wrong clock — a small thing, but "built in the open" means we hold ourselves to it
+        too. We corrected them to a single honest clock, cleaned out an old config that
+        didn't belong, and only then flipped the lights on. If we ever have to correct a
+        day's number, it gets written up right here — never quietly changed.
+      </div>
+    </article>
 
     <div class="stars" aria-hidden="true">✦ ✦ ✦</div>
 
