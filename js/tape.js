@@ -70,14 +70,14 @@
     return { win: win, prevClose: prev };
   }
 
-  // window-local stats — everything the daily curve can honestly reconstruct.
-  // (trade-level stats — profit factor, trade count, trade win-rate — need
-  // per-trade data the curve doesn't carry, so those stay all-time: see the
-  // "full record" line in render(). Same close-vs-prev-close basis as the chart.)
+  // window-local stats — everything the daily curve honestly reconstructs:
+  // return, drawdown, best/worst day, green/red/flat counts. Sharpe stays
+  // all-time (a windowed Sharpe over ~30d is too noisy). Same close-vs-prev-close
+  // basis as the chart.
   function windowStats(win, prevClose) {
     var val = function (p) { return p.close != null ? p.close : p.value; };
     var n = win.length;
-    if (!n) return { ret: null, maxdd: null, best: null, worst: null, green: 0, red: 0, flat: 0, winRate: null, days: 0 };
+    if (!n) return { ret: null, maxdd: null, best: null, worst: null, green: 0, red: 0, flat: 0, days: 0 };
     var last = val(win[n - 1]);
     var ret = prevClose ? (last - prevClose) / prevClose * 100 : null;
     var peak = prevClose, maxdd = 0, best = null, worst = null, g = 0, r = 0, f = 0, prev = prevClose;
@@ -91,7 +91,7 @@
       if (delta > FLAT_EPS) g++; else if (delta < -FLAT_EPS) r++; else f++;
       prev = v;
     });
-    return { ret: ret, maxdd: maxdd, best: best, worst: worst, green: g, red: r, flat: f, winRate: g / n * 100, days: n };
+    return { ret: ret, maxdd: maxdd, best: best, worst: worst, green: g, red: r, flat: f, days: n };
   }
   function winLabel(since) {
     return WIN === 'all' ? 'since ' + (since || 'start')
@@ -250,12 +250,10 @@
       var shareText = 'day ' + day + ' of a machine that shows its work. wins, losses, all of it, in the open.';
       var shareHref = 'https://x.com/intent/post?text=' + encodeURIComponent(shareText) +
         '&url=' + encodeURIComponent('https://mochion.xyz/#tape-' + (d.as_of || ''));
-      // trade-level stats can't be reconstructed from the daily curve, so the underlying
-      // record stays all-time — and doubles as the honesty anchor under any short window.
+      // the all-time anchor: the day count (durability / keep-watching signal) + Sharpe.
+      // trade-level stats intentionally dropped — the record stands on return, drawdown,
+      // and the day-outcome breakdown above.
       var rec = [day + (day === 1 ? ' day' : ' days')];
-      if (s.closed_trades != null) rec.push(s.closed_trades + ' trades');
-      if (s.win_rate_pct != null) rec.push(s.win_rate_pct.toFixed(0) + '% trade-win');
-      if (s.profit_factor != null) rec.push(s.profit_factor.toFixed(2) + ' profit factor');
       if (s.sharpe != null) rec.push('sharpe ' + s.sharpe.toFixed(2));
       var allTimeLine = '<p class="tape-basis tape-alltime">the full record · ' + esc(rec.join(' · ')) + '</p>';
 
@@ -277,7 +275,6 @@
             stat(String(ws.green), 'green days') +
             stat(String(ws.red), 'red days') +
             stat(String(ws.flat), 'flat days') +
-            stat(ws.winRate == null ? '—' : ws.winRate.toFixed(0) + '%', 'win rate') +
           '</div>' + caveat +
           allTimeLine +
           (basis ? '<p class="tape-basis">' + basis + '</p>' : '') +

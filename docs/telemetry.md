@@ -46,15 +46,12 @@ The site renders these with vanilla JS — the box **no longer renders SVG**. Un
     "pnl": "total account P&L, marked-to-market (realized + unrealized + funding − commission)",
     "scope": "portfolio (aggregate)",
     "returns": "percent of account capital",
-    "note": "no absolute capital / per-strategy / per-trade detail is published. sharpe is annualized from daily returns (provisional — short history). win-rate / profit-factor are per close-event (hourly realized deltas)."
+    "note": "no absolute capital / per-strategy / per-trade detail is published. sharpe is annualized from daily returns (provisional — short history)."
   },
   "summary": {
     "cumulative_return_pct": 6.0,
     "max_drawdown_pct": -1.2,
     "sharpe": 2.1,
-    "win_rate_pct": 66.7,
-    "profit_factor": 4.0,
-    "closed_trades": 3,
     "best_day_pct": 4.5,
     "worst_day_pct": -1.2
   },
@@ -82,11 +79,14 @@ Field notes:
   `attribution[]` and `venues[]` fields.
 - **NAV / mark-to-market.** The curve is total account P&L (realized + unrealized + funding −
   commission), marked each hour and resampled to daily candles — so drawdown captures open-position
-  risk. `win_rate_pct` / `profit_factor` / `closed_trades` still come from the **realized** deltas
-  (closed trades only), per hourly close-event.
+  risk.
 - `summary.sharpe` is annualized from daily returns and **provisional on a short history** — render it
   soberly (or omit) until the sample is long enough to be meaningful.
-- `summary.*` may be `null` (e.g. `sharpe` / `win_rate_pct` / `profit_factor` before enough data).
+- `summary.*` may be `null` (e.g. `sharpe` before enough data).
+- **Public surface.** The site renders only `cumulative_return_pct` / `max_drawdown_pct` /
+  `best_day_pct` / `worst_day_pct` / `sharpe` plus the daily OHLC (for the windowed return, drawdown,
+  and green/red/flat day counts). Trade-level stats were dropped from the display for clarity + trust;
+  any extra `summary.*` fields the exporter still emits are **ignored** by the site.
 - `data_quality.realized_reconciles=false` → the newest snapshot's realized didn't match the ledger;
   the site **must show a caveat**. The exporter still publishes from the authoritative snapshots (it
   does **not** refuse) — it just flags the drift.
