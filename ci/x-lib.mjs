@@ -87,13 +87,25 @@ export async function whoAmI(c) {
   const out = await call(c, 'GET', 'https://api.twitter.com/2/users/me', { query: { 'user.fields': 'public_metrics' } });
   return out.data;   // { id, username, public_metrics:{followers_count,...} }
 }
-// recent posts by the authed user, with per-post metrics (for A3 + caption learning)
-export async function myRecentTweets(c, userId, max = 20) {
+// recent posts by the authed user, with per-post metrics (for A3 + caption learning).
+// Includes the account's OWN replies (referenced_tweets) so callers can subtract
+// self-replies from a parent's reply_count — the link reply must not count as engagement.
+export async function myRecentTweets(c, userId, max = 100) {
   const out = await call(c, 'GET', `https://api.twitter.com/2/users/${userId}/tweets`, {
-    query: { max_results: String(Math.min(100, Math.max(5, max))), 'tweet.fields': 'public_metrics,created_at,text', exclude: 'retweets,replies' },
+    query: { max_results: String(Math.min(100, Math.max(5, max))), 'tweet.fields': 'public_metrics,created_at,text,referenced_tweets', exclude: 'retweets' },
   });
   return out.data || [];
 }
+// how many of `parentId`'s replies came from THIS account (self-replies to exclude)
+export function selfReplyCounts(tweets) {
+  const byParent = {};
+  for (const t of tweets) {
+    const rep = (t.referenced_tweets || []).find((r) => r.type === 'replied_to');
+    if (rep) byParent[rep.id] = (byParent[rep.id] || 0) + 1;
+  }
+  return byParent;
+}
+export const isReply = (t) => (t.referenced_tweets || []).some((r) => r.type === 'replied_to');
 
 // ---- the ONE day-outcome rule (shared with ci/og-tape.mjs + the panel) ----
 export const FLAT_EPS = 0.05;

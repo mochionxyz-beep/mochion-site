@@ -7,7 +7,7 @@
 // Zero deps. DRY_RUN=true prints the row instead of appending.
 
 import { appendFileSync, readFileSync } from 'node:fs';
-import { creds, whoAmI, myRecentTweets, outcome } from './x-lib.mjs';
+import { creds, whoAmI, myRecentTweets, selfReplyCounts, isReply, outcome } from './x-lib.mjs';
 import { searchConsole } from './gsc.mjs';
 
 const REPO = process.env.GITHUB_REPOSITORY || 'mochionxyz-beep/mochion-site';
@@ -33,17 +33,20 @@ try {
   const c = creds();
   const me = await whoAmI(c);
   row.x = { followers: me.public_metrics?.followers_count, following: me.public_metrics?.following_count, tweets: me.public_metrics?.tweet_count };
-  const recent = await myRecentTweets(c, me.id, 20);
-  // pair each stamp ("day N. …") with its metrics + which outcome-pool it used
+  const recent = await myRecentTweets(c, me.id, 100);   // includes the account's own replies
+  const selfReplies = selfReplyCounts(recent);          // parentId → # of our own replies to it
+  // pair each stamp ("day N. …", not itself a reply) with its metrics + outcome pool.
+  // replies = reply_count MINUS our own self-reply (the link reply isn't engagement).
   const d = JSON.parse(readFileSync(new URL('../data/public.json', import.meta.url), 'utf8'));
   const curve = d.equity_curve || [];
   const outByDay = {};                                  // day → outcome, for classifying past posts
   curve.forEach((p, i) => { const prev = i ? (curve[i - 1].close ?? curve[i - 1].value) : 100; outByDay[i + 1] = outcome((p.close ?? p.value) - prev); });
   row.stamps = recent.map((t) => {
     const m = /^day (\d+)\./.exec(t.text || '');
-    if (!m) return null;
+    if (!m || isReply(t)) return null;                  // must be an original stamp, not a reply
     const day = +m[1], pm = t.public_metrics || {};
-    return { day, pool: outByDay[day] || '?', impr: pm.impression_count ?? null, likes: pm.like_count, replies: pm.reply_count, rt: pm.retweet_count };
+    const replies = Math.max(0, (pm.reply_count || 0) - (selfReplies[t.id] || 0));
+    return { day, pool: outByDay[day] || '?', impr: pm.impression_count ?? null, likes: pm.like_count, replies, rt: pm.retweet_count };
   }).filter(Boolean);
 } catch (e) { console.error('metrics: x ' + e.message); }
 
