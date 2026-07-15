@@ -31,17 +31,19 @@ if (d && d.status !== 'no_data' && d.equity_curve?.length >= 7) {
 }
 
 // box devlog (Cast-voiced, already sanitized on the box)
+const CAST_EMOJI = { dispatcher: '📮', referee: '🚦', lookout: '🔭', archivist: '🗄️' };
 const devBullets = [];
 if (devlog && Array.isArray(devlog.stations)) {
   for (const st of devlog.stations) {
+    const emo = CAST_EMOJI[st.cast] || '';
     const hi = (st.highlights || []).filter(Boolean);
-    if (hi.length) hi.forEach((h) => devBullets.push(`the ${st.cast} ${h}`));
-    else if (st.changes) devBullets.push(`the ${st.cast} station saw ${st.changes} change${st.changes === 1 ? '' : 's'}`);
+    if (hi.length) hi.forEach((h) => devBullets.push(`${emo} the ${st.cast} ${h}`.trim()));
+    else if (st.changes) devBullets.push(`${emo} the ${st.cast} station saw ${st.changes} change${st.changes === 1 ? '' : 's'}`.trim());
   }
 }
 
-// site-workshop bullets (plain, from commit subjects)
-const siteBullets = meaningful.slice(0, 8).map((s) => s.replace(/\.$/, ''));
+// site-workshop bullets (Mochi minds the shop), from commit subjects
+const siteBullets = meaningful.slice(0, 8).map((s) => `🍡 ${s.replace(/\.$/, '')}`);
 
 const totalSignal = devBullets.length + siteBullets.length + (tapeLine ? 1 : 0);
 if (totalSignal < 2) { console.error('draft: quiet week — no PR'); process.exit(3); }
