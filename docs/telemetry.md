@@ -26,7 +26,7 @@ kept OUT of this repo for isolation.
 ## Producer owns (everything under `site/data/`) — JSON ONLY
 | File | Cadence | Purpose |
 |---|---|---|
-| `data/public.json`   | daily     | the track record ("The Tape"), rendered by the site (built from hourly snapshots, published through yesterday) |
+| `data/public.json`   | daily     | the track record ("The Tape"), rendered by the site (built from intraday snapshots, published through yesterday) |
 | `data/activity.json` | daily ok  | commit/LOC activity, rendered by the site on the build-log page |
 
 The site renders these with vanilla JS — the box **no longer renders SVG**. Until real data flows,
@@ -90,7 +90,7 @@ Field notes:
 - `data_quality.realized_reconciles=false` → the newest snapshot's realized didn't match the ledger;
   the site **must show a caveat**. The exporter still publishes from the authoritative snapshots (it
   does **not** refuse) — it just flags the drift.
-- `as_of` intentionally lags (the exporter drops the last `--lag-days` days) — publish **through
+- `as_of` intentionally lags (the exporter drops the most recent day) — publish **through
   yesterday**.
 
 ## Sanitization (hard) — results, not intentions
@@ -160,9 +160,9 @@ Keep the standing disclaimer: **unaudited, short history, past results never pro
   line moves continuously and drawdown includes open-position risk. Win-rate / profit-factor stay
   realized-only (closed trades).
 - **`equity_curve[]` is now a daily OHLC candle** (`open`/`high`/`low`/`close`), resampled from the
-  hourly snapshots, with `value` == `close` kept for the line-chart fallback.
+  intraday snapshots, with `value` == `close` kept for the line-chart fallback.
 - **Added `summary.sharpe`** — annualized daily-return Sharpe, flagged provisional on short history.
-- **Publish cadence is daily** (built from hourly snapshots, `--lag-days 1` → through yesterday).
+- **Publish cadence is daily** (built from intraday snapshots, published through yesterday).
 
 ## What changed (2026-07-09)
 - **`public.json` replaced `live.json` / `mochion.telemetry.v1`** as the track-record contract — the
@@ -172,5 +172,5 @@ Keep the standing disclaimer: **unaudited, short history, past results never pro
 
 ## Setup pointer (box side)
 The box push runbook (dedicated pseudonymous checkout, git identity `mochion-data <data@mochion.xyz>`
-+ `TZ=UTC`, the fine-grained token at `~/.config/mochion/gh-token`, and the hourly cron) lives with the
++ `TZ=UTC`, a fine-grained repo-scoped token, and the publish cron) lives with the
 box ops — **not** in this repo. This repo stays free of trading hostnames, paths, and repo names.

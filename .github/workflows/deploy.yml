@@ -49,7 +49,7 @@ jobs:
         run: |
           STAMP=$(date -u +%Y%m%d%H%M)
           sed -i "s|og/tape.png?v=[^\"]*|og/tape.png?v=$STAMP|" index.html
-          sed -i -E "s|(css/styles\.css\?v=)[^\"]*|\1$STAMP|g; s|(js/tape\.js\?v=)[^\"]*|\1$STAMP|g; s|(js/activity\.js\?v=)[^\"]*|\1$STAMP|g" index.html log.html roadmap.html 404.html
+          sed -i -E "s|(css/styles\.css\?v=)[^\"]*|\1$STAMP|g; s|(js/tape\.js\?v=)[^\"]*|\1$STAMP|g; s|(js/activity\.js\?v=)[^\"]*|\1$STAMP|g" index.html log.html roadmap.html 404.html kit.html
 
       # generators are done — don't upload their dependencies to Pages
       - name: Drop CI node_modules from the deploy dir

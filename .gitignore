@@ -25,3 +25,6 @@ Thumbs.db
 *.swp
 .vscode/
 .idea/
+
+# private analytics — audience / X / Search-Console growth log; NEVER publish
+data/metrics.jsonl

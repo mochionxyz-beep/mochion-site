@@ -2,7 +2,7 @@ name: Smart link reply
 
 # A3 — once a day, drop the tape link UNDER any of our posts that has earned an
 # audience (the daily stamp ships link-less because URL posts cost ~13x). Runs at
-# 14:00 UTC — ~14h after the ~00:06 stamp, enough time to know if it popped.
+# 14:00 UTC — well after the daily stamp, enough time to know if it popped.
 # Idempotent + capped, so a quiet day posts nothing and costs one cheap read.
 on:
   schedule:

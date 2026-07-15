@@ -2,9 +2,9 @@
 
 > Mochion (pronounced "moh-chee-on", https://mochion.xyz) is a small, real crypto
 > algo-trading system presented as a 1930s comic-book world. Mochi, a little dango
-> worker, keeps "the Machine" — one automated trading system running a small
-> portfolio of careful strategies — working around the clock in a glass-walled
-> workshop, and publishes its honest track record daily. The motto: don't trust — watch.
+> worker, keeps "the Machine" — one automated system trading a small, careful
+> crypto portfolio — in a glass-walled workshop, and publishes its honest track
+> record daily. The motto: don't trust — watch.
 
 IMPORTANT: Mochion is a personal project, not a fund. Nothing on the site is a
 solicitation, an offer, or investment advice. There is no token, no NFT, and no

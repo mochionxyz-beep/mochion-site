@@ -1,7 +1,7 @@
 name: Watchdog
 
-# Proves "updated daily" is actually kept. Runs 75 min after the box's 00:05 UTC
-# publish; a red run emails the account (repo issues are off — email is the bell).
+# Proves "updated daily" is actually kept. Runs after the box's daily publish;
+# a red run emails the account (repo issues are off — email is the bell).
 on:
   schedule:
     - cron: '20 1 * * *'

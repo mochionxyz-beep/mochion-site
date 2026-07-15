@@ -7,7 +7,7 @@
   var C = { sec: '#6b6355', matcha: '#9DBB72' };
 
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-  function num(n) { return n == null ? '—' : Number(n).toLocaleString('en-US'); }
+  function num(n) { return n == null ? '—' : Number(n).toLocaleString(); }
 
   function waiting(note) {
     el.innerHTML = '<div class="tape-waiting"><b>The build feed prints here.</b><span>' +

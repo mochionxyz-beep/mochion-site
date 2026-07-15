@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write            # append + commit data/metrics.jsonl
+  contents: read             # metrics go to the private Telegram channel; nothing is committed
 
 jobs:
   metrics:
@@ -35,13 +35,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GSC_SA_KEY: ${{ secrets.GSC_SA_KEY }}
           DRY_RUN: ${{ inputs.dry_run || 'false' }}
-      - name: Commit the row
-        if: ${{ inputs.dry_run != 'true' }}
-        run: |
-          if ! git diff --quiet data/metrics.jsonl; then
-            git config user.name mochion
-            git config user.email dev@mochion.xyz
-            git commit -q -m "metrics: weekly row" data/metrics.jsonl
-            git pull --rebase origin main    # the box may have pushed data/public.json since checkout
-            git push
-          fi
+      # No commit step: data/metrics.jsonl holds PRIVATE audience / Search-Console
+      # analytics and must never be published (it is gitignored). ci/metrics.mjs
+      # already sends the weekly digest to the private Telegram channel — that is the
+      # only sink. For durable history, persist to a PRIVATE store, not this repo.
