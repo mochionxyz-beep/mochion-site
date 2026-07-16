@@ -1,2 +1,24 @@
-{ "week_start": null, "stations": [], "status": "no_data",
-  "note": "populated by the box airlock (ops/export_devlog.py) once deployed." }
+{
+  "week_start": "2026-07-08",
+  "stations": [
+    {
+      "cast": "dispatcher",
+      "changes": 12,
+      "highlights": [
+        "improved what it reports"
+      ]
+    },
+    {
+      "cast": "archivist",
+      "changes": 6,
+      "highlights": [
+        "got a little more reliable"
+      ]
+    },
+    {
+      "cast": "lookout",
+      "changes": 1,
+      "highlights": []
+    }
+  ]
+}
