@@ -1,16 +1,14 @@
 {
-  "week_start": "2026-07-08",
+  "week_start": "2026-07-09",
   "stations": [
     {
       "cast": "dispatcher",
-      "changes": 12,
-      "highlights": [
-        "improved what it reports"
-      ]
+      "changes": 11,
+      "highlights": []
     },
     {
       "cast": "archivist",
-      "changes": 6,
+      "changes": 4,
       "highlights": [
         "got a little more reliable"
       ]
