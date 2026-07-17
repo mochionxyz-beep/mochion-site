@@ -7,10 +7,15 @@
       "highlights": []
     },
     {
+      "cast": "referee",
+      "changes": 1,
+      "highlights": []
+    },
+    {
       "cast": "archivist",
       "changes": 4,
       "highlights": [
-        "got a little more reliable"
+        "got sturdier against a bad record"
       ]
     },
     {
@@ -18,5 +23,8 @@
       "changes": 1,
       "highlights": []
     }
+  ],
+  "notes": [
+    "the tape now starts on June 1 \u2014 the first day of real hour-by-hour records; the earlier flat days were trimmed, so the day count restarts there"
   ]
 }
