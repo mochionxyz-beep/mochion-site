@@ -45,14 +45,36 @@ if (devlog && Array.isArray(devlog.stations)) {
 // site-workshop bullets (Mochi minds the shop), from commit subjects
 const siteBullets = meaningful.slice(0, 8).map((s) => `🍡 ${s.replace(/\.$/, '')}`);
 
-const totalSignal = devBullets.length + siteBullets.length + (tapeLine ? 1 : 0);
-if (totalSignal < 2) { console.error('draft: quiet week — no PR'); process.exit(3); }
+// human notes — the REAL, leak-gated highlights (reliability/risk/infra). This is the
+// substance of the entry; the cast + site bullets are flavor around it. Verbatim from the box.
+const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const notes = (devlog && Array.isArray(devlog.notes) ? devlog.notes : []).filter(Boolean).slice(0, 6);
+
+const totalSignal = notes.length + devBullets.length + siteBullets.length + (tapeLine ? 1 : 0);
+// a single real human note always earns the post; otherwise need ≥2 signals of any kind
+if (totalSignal < 2 && notes.length === 0) { console.error('draft: quiet week — no PR'); process.exit(3); }
 
 // build the article (contract-compliant: article.entry#YYYY-MM-DD-slug, one time, one h2)
 const asOf = (d && d.as_of) || new Date().toISOString().slice(0, 10);
 const id = `${asOf}-week-at-hq`;
-const bullets = [...devBullets, ...siteBullets].slice(0, 10)
-  .map((b) => `        <li>${b.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</li>`).join('\n');
+const noteItems = notes.map((n) => `        <li>${esc(n)}</li>`).join('\n');
+const flavorItems = [...devBullets, ...siteBullets].slice(0, 10)
+  .map((b) => `        <li>${esc(b)}</li>`).join('\n');
+
+const workbench = notes.length ? `
+      <div class="caption">
+        <span class="kicker">from the workbench</span>
+        <ul style="margin:6px 0 0;padding-left:20px">
+${noteItems}
+        </ul>
+      </div>` : '';
+const workshop = (devBullets.length + siteBullets.length) ? `
+      <div class="caption">
+        <span class="kicker">around the workshop</span>
+        <ul style="margin:6px 0 0;padding-left:20px">
+${flavorItems}
+        </ul>
+      </div>` : '';
 
 const article = `    <div class="stars" aria-hidden="true">✦ ✦ ✦</div>
 
@@ -62,13 +84,7 @@ const article = `    <div class="stars" aria-hidden="true">✦ ✦ ✦</div>
       <div class="caption">
         <span class="kicker">what got built</span>
         ${tapeLine || 'The machine kept its hours this week.'}
-      </div>
-      <div class="caption">
-        <span class="kicker">around the workshop</span>
-        <ul style="margin:6px 0 0;padding-left:20px">
-${bullets}
-        </ul>
-      </div>
+      </div>${workbench}${workshop}
     </article>`;
 
 // emit the article + a machine-readable header for the workflow
