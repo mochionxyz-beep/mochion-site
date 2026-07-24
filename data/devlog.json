@@ -1,25 +1,13 @@
 {
-  "week_start": "2026-07-15",
+  "week_start": "2026-07-16",
   "stations": [
     {
       "cast": "dispatcher",
-      "changes": 4,
-      "highlights": []
-    },
-    {
-      "cast": "referee",
       "changes": 1,
       "highlights": []
     },
     {
-      "cast": "archivist",
-      "changes": 4,
-      "highlights": [
-        "got sturdier against a bad record"
-      ]
-    },
-    {
-      "cast": "lookout",
+      "cast": "referee",
       "changes": 1,
       "highlights": []
     }
