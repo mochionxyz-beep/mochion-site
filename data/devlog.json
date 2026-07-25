@@ -1,18 +1,11 @@
 {
-  "week_start": "2026-07-16",
+  "week_start": "2026-07-17",
   "stations": [
-    {
-      "cast": "dispatcher",
-      "changes": 1,
-      "highlights": []
-    },
     {
       "cast": "referee",
       "changes": 1,
       "highlights": []
     }
   ],
-  "notes": [
-    "the tape now starts on June 1 \u2014 the first day of real hour-by-hour records; the earlier flat days were trimmed, so the day count restarts there"
-  ]
+  "notes": []
 }
