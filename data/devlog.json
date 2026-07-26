@@ -1,10 +1,12 @@
 {
-  "week_start": "2026-07-17",
+  "week_start": "2026-07-18",
   "stations": [
     {
-      "cast": "referee",
+      "cast": "lookout",
       "changes": 1,
-      "highlights": []
+      "highlights": [
+        "worked a crick out of the spyglass"
+      ]
     }
   ],
   "notes": []
