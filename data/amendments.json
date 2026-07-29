@@ -1,0 +1,39 @@
+{
+  "spec": "amendments.v1",
+  "record": "data/public.json",
+  "note": "Every change to an already-published figure is logged here, append-only. If a day is ever corrected, it gets written up — not quietly changed. Entries are matched by commit, so anyone can check this ledger against the repository's own history.",
+  "amendments": [
+    {
+      "date": "2026-07-10",
+      "commit": "6a41784",
+      "type": "backfill",
+      "affects": { "from": "2026-05-28", "to": "2026-07-09" },
+      "summary": "The public record began on this date with 43 days already in it.",
+      "reason": "The system had been running before the record was made public, so its existing history was published in one commit. Those days are part of the record, but they were not witnessed in public as they happened — only the days published from 2026-07-10 onward were."
+    },
+    {
+      "date": "2026-07-16",
+      "commit": "fecd121",
+      "type": "trim",
+      "affects": { "from": "2026-05-28", "to": "2026-05-31" },
+      "summary": "Four days were removed from the start of the record.",
+      "reason": "Those days carried only a single end-of-day value rather than a full daily range, so the curve began with flat, low-detail candles. The record now starts at the first day of complete data."
+    },
+    {
+      "date": "2026-07-16",
+      "commit": "fecd121",
+      "type": "rebase",
+      "affects": { "from": "2026-06-01", "to": "2026-07-14" },
+      "summary": "Re-indexing the start date to 2026-06-01 shifted every published index level by a constant of approximately -0.4847 across 44 days.",
+      "reason": "The curve is indexed to 100 at its start date. Moving the start date moves every level after it. Daily returns are unchanged (maximum divergence 0.0095 percentage points, which is rounding). The shape of the record is identical; only its starting reference moved. This also reset the day count, which is why the published day number stepped backwards that week."
+    },
+    {
+      "date": "2026-07-16",
+      "commit": "fecd121",
+      "type": "schema",
+      "affects": { "from": "2026-06-01", "to": "2026-07-14" },
+      "summary": "Three fields were removed from the summary: win_rate_pct, profit_factor, closed_trades.",
+      "reason": "They described individual trade outcomes. This record deliberately publishes portfolio-level results only, so they should not have been there."
+    }
+  ]
+}
