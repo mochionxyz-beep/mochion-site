@@ -1,0 +1,43 @@
+name: Verify the record
+
+# Runs record-verify (mochionxyz-beep/record-kit) against this repo's own
+# history and writes data/verify.json for <verified-tape> to render.
+#
+# DELIBERATELY SEPARATE from deploy.yml, and DELIBERATELY NOT on `push`: a
+# verifier bug, a rate limit, or a slow network call must NEVER be able to
+# stop the daily record from deploying. continue-on-error is set for an
+# initial settling period (see the migration notes) — remove it once this
+# has run cleanly for a couple of weeks.
+on:
+  schedule:
+    - cron: '30 0 * * *'      # daily, after the 00:05 UTC data push + deploy
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }   # full history — the append check needs every revision, not just HEAD
+
+      - name: Run record-verify
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx --yes github:mochionxyz-beep/record-kit record-verify . \
+            --url https://mochion.xyz/data/public.json \
+            --format verify-json --out data/verify.json
+
+      - name: Commit the report if it changed
+        run: |
+          git config user.name mochion
+          git config user.email dev@mochion.xyz
+          git add data/verify.json
+          if ! git diff --cached --quiet; then
+            git commit -q -m "verify: refresh integrity report"
+            git push -q
+          fi

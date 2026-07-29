@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>tape migration preview — not a public page</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="css/styles.css?v=0">
+  <style>
+    body { max-width: 860px; margin: 30px auto; padding: 0 16px; }
+    h2 { font-family: var(--type); font-size: .8em; text-transform: uppercase; letter-spacing: .05em; color: var(--paper-dim); margin: 30px 0 6px; }
+  </style>
+</head>
+<body>
+  <p style="font-family:var(--type);font-size:.8em">migration preview — compares the current <code>js/tape.js</code> panel (left in the build) against the new <code>&lt;verified-tape&gt;</code> component. Not linked from anywhere; not deployed to the sitemap.</p>
+
+  <h2>current: js/tape.js</h2>
+  <figure class="panel--art tape" id="tape-panel">
+    <div class="tape-waiting"><b>The Tape prints here.</b><span>Loading the latest honest day…</span></div>
+  </figure>
+
+  <h2>new: &lt;verified-tape&gt;</h2>
+  <verified-tape src="data/public.json" deep-link deep-link-prefix="tape2" countdown></verified-tape>
+
+  <script src="js/tape.js?v=0" defer></script>
+  <script type="module" src="js/verified-tape.js?v=0"></script>
+</body>
+</html>
