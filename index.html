@@ -100,7 +100,11 @@
     <div class="banner">The Tape</div>
     <section id="tape">
       <figure class="panel--art tape" id="tape-panel">
-        <div class="tape-waiting"><b>The Tape prints here.</b><span>Loading the latest honest day…</span></div>
+        <verified-tape src="data/public.json" verify-src="data/verify.json" deep-link deep-link-prefix="tape" countdown>
+          <span slot="empty"><b>The Tape prints here.</b> Loading the latest honest day…</span>
+          <span slot="error">The Tape hit a snag rendering — the record itself is unaffected. Refresh to retry.</span>
+          <span slot="limits">what the record proves, and what it doesn't →</span>
+        </verified-tape>
       </figure>
       <div class="caption">
         <span class="kicker">the proof</span>
@@ -252,6 +256,6 @@
   </footer>
 
 </div>
-<script src="js/tape.js?v=0" defer></script>
+<script type="module" src="js/verified-tape.js?v=0"></script>
 </body>
 </html>

@@ -4,10 +4,12 @@
 > the site serves it as a static file and **renders the panels client-side (vanilla JS)**. The site
 > never reaches into trading systems.
 >
-> **Source of truth for the track-record schema is the exporter on the trading box** — it emits
-> `public.json`, and this doc mirrors that output for the site (consumer) side. Where this doc and
-> the exporter ever disagree, the exporter wins. *(This supersedes the earlier `live.json` /
-> `mochion.telemetry.v1` spec, which was never implemented — see "What changed".)*
+> **The schema itself is normatively defined by [`record.v1`](https://github.com/mochionxyz-beep/record-kit/blob/main/SPEC.md)**
+> — a general, public spec for append-only, edge-preserving track records, extracted from this
+> project. Where this doc and `SPEC.md` ever disagree, `SPEC.md` wins. This page covers only the
+> Mochion-specific transport (the box → repo → Cloudflare Pages pipeline) and which fields the site
+> actually renders — read `SPEC.md` for the field-by-field contract. *(This supersedes the earlier
+> `live.json` / `mochion.telemetry.v1` spec, which was never implemented — see "What changed".)*
 
 ## Flow
 ```
@@ -33,70 +35,33 @@ The site renders these with vanilla JS — the box **no longer renders SVG**. Un
 `public.json` is the `no_data` shape below (an honest "waiting" panel). The old placeholder
 `stats.svg` / `activity.svg` are retired.
 
-## `public.json` — the track record (authoritative = the box exporter)
+## `public.json` — the track record
 
-**Normal shape:**
-```json
-{
-  "generated_at": "2026-01-04T00:00:00+00:00",
-  "since": "2026-01-01",
-  "as_of": "2026-01-02",
-  "days_live": 2,
-  "basis": {
-    "pnl": "total account P&L, marked-to-market (realized + unrealized + funding − commission)",
-    "scope": "portfolio (aggregate)",
-    "returns": "percent of account capital",
-    "note": "no absolute capital / per-strategy / per-trade detail is published. sharpe is annualized from daily returns (provisional — short history)."
-  },
-  "summary": {
-    "cumulative_return_pct": 6.0,
-    "max_drawdown_pct": -1.2,
-    "sharpe": 2.1,
-    "best_day_pct": 4.5,
-    "worst_day_pct": -1.2
-  },
-  "equity_curve": [
-    {"date": "2026-01-01", "open": 100.0, "high": 104.6, "low": 99.7, "close": 104.5, "value": 104.5},
-    {"date": "2026-01-02", "open": 104.5, "high": 106.3, "low": 103.1, "close": 106.0, "value": 106.0}
-  ],
-  "monthly_returns_pct": [ {"month": "2026-01", "return_pct": 6.0} ],
-  "data_quality": { "realized_reconciles": true }
-}
-```
-**No-data shape (before the first day prints):**
-```json
-{ "generated_at": "…", "status": "no_data",
-  "note": "no realized activity yet — the first honest day hasn't printed. Follow the build.",
-  "data_quality": { "realized_reconciles": true } }
-```
-Field notes:
-- **Percent / index only.** Each `equity_curve[]` entry is one **daily OHLC candle** — `open` / `high`
-  / `low` / `close`, each an index of the account NAV to **100** at `since` (`value` mirrors `close`
-  for a line-chart fallback). There is **no** absolute capital, dollar figure, or position size
-  anywhere — by construction.
-- **Portfolio-only.** One aggregate book — **no per-strategy attribution, no venue tags, no symbols**
-  (strategy names and the venue mix are edge/identity signal). This deliberately drops the old
-  `attribution[]` and `venues[]` fields.
-- **NAV / mark-to-market.** The curve is total account P&L (realized + unrealized + funding −
-  commission), marked each hour and resampled to daily candles — so drawdown captures open-position
-  risk.
-- `summary.sharpe` is annualized from daily returns and **provisional on a short history** — render it
-  soberly (or omit) until the sample is long enough to be meaningful.
-- `summary.*` may be `null` (e.g. `sharpe` before enough data).
-- **Public surface.** The site renders only `cumulative_return_pct` / `max_drawdown_pct` /
-  `best_day_pct` / `worst_day_pct` / `sharpe` plus the daily OHLC (for the windowed return, drawdown,
-  and green/red/flat day counts). Trade-level stats were dropped from the display for clarity + trust;
-  any extra `summary.*` fields the exporter still emits are **ignored** by the site.
+**The field-by-field schema, invariants, and definitions are `record.v1`** — see
+[`SPEC.md`](https://github.com/mochionxyz-beep/record-kit/blob/main/SPEC.md) §3–§5. This section
+covers only what's specific to Mochion's own instance of it.
+
+- **Portfolio-only, NAV / mark-to-market.** One aggregate book, indexed to 100 at `since` — no
+  absolute capital, no per-strategy attribution, no venue tags, no symbols (edge/identity signal).
+  `basis.pnl` describes this in the abstract (`SPEC.md` §8 explains why the wording itself matters —
+  naming a P&L component more specific than realized/unrealized/fees, or a marking cadence, is its
+  own kind of leak, independent of any structured field).
+- `summary.sharpe` is annualized from daily returns and **provisional on a short history** — rendered
+  soberly (or omitted) until the sample is long enough to be meaningful. `summary.*` may be `null`.
+- **Public surface.** The site renders `cumulative_return_pct` / `max_drawdown_pct` / `best_day_pct` /
+  `worst_day_pct` / `sharpe` plus the daily OHLC (for the windowed return, drawdown, and green/red/flat
+  day counts) — nothing else. Earlier `summary` fields (`win_rate_pct`, `profit_factor`,
+  `closed_trades`) were **removed**, not merely hidden from display — they described individual trade
+  outcomes and should not have been published at all. See `data/amendments.json` for when and why.
 - `data_quality.realized_reconciles=false` → the newest snapshot's realized didn't match the ledger;
   the site **must show a caveat**. The exporter still publishes from the authoritative snapshots (it
   does **not** refuse) — it just flags the drift.
-- `as_of` intentionally lags (the exporter drops the most recent day) — publish **through
+- `as_of` intentionally lags one day (the exporter drops the most recent day) — publish **through
   yesterday**.
 
 ## Sanitization (hard) — results, not intentions
 - ALLOWED: the indexed NAV equity curve (daily OHLC candles); the % returns / ratios / counts above
-  (Sharpe, win-rate, profit-factor, best/worst day); max drawdown; `generated_at` / `since` / `as_of`
-  / `days_live`.
+  (Sharpe, best/worst day); max drawdown; `generated_at` / `since` / `as_of` / `days_live`.
 - FORBIDDEN: absolute capital, dollars, position sizes; per-strategy or per-trade detail; symbols;
   venues; open orders / pending signals / order prices; API keys, hostnames, IPs, account ids,
   anything from `.env`.
@@ -154,11 +119,23 @@ Style tokens (so the panel reads native): parchment `#E9DFC9`, ink `#26201C`, se
 matcha `#9DBB72` (fill) / `#587A40` (stroke), pink `#EFA9B8` sparingly; equity line `#26201C` 3px.
 Keep the standing disclaimer: **unaudited, short history, past results never promise future ones.**
 
+## What changed (2026-07-30)
+- **The schema is now normatively `record.v1`**, extracted into the public
+  [`record-kit`](https://github.com/mochionxyz-beep/record-kit) toolkit — this doc defers to
+  `SPEC.md` rather than duplicating the field contract (the two had quietly drifted before: this page
+  described `basis.pnl` as naming "funding" and a "marked each hour" cadence, and still listed
+  `win_rate_pct`/`profit_factor` as allowed fields, months after both were removed from the live
+  export. Corrected here, not left to drift again).
+- `js/verified-tape.js` (a vendored copy of record-kit's `<verified-tape>` component) is being
+  shadow-deployed at `/tape-preview.html` ahead of replacing `js/tape.js` on the live page.
+- A new, separate `verify.yml` workflow runs `record-verify` against this repo's own history daily
+  and writes `data/verify.json` — the machine-checkable version of the append-only claim this page
+  and `index.html` have always made in prose.
+
 ## What changed (2026-07-10)
 - **Curve basis: realized-only → account NAV (mark-to-market).** `equity_curve` / drawdown / Sharpe /
-  returns now track total P&L (realized + unrealized + funding − commission) marked each hour, so the
-  line moves continuously and drawdown includes open-position risk. Win-rate / profit-factor stay
-  realized-only (closed trades).
+  returns now track total P&L, net of fees, so the line moves continuously and drawdown includes
+  open-position risk.
 - **`equity_curve[]` is now a daily OHLC candle** (`open`/`high`/`low`/`close`), resampled from the
   intraday snapshots, with `value` == `close` kept for the line-chart fallback.
 - **Added `summary.sharpe`** — annualized daily-return Sharpe, flagged provisional on short history.
