@@ -34,9 +34,18 @@ jobs:
           # makes npx treat it as a second, unrelated package to install --
           # confirmed the hard way: this exact line failed every run with
           # "fatal: repository 'record-verify.git' not found" until fixed.
+          #
+          # The trailing `|| true` is deliberate, not a mistake: record-verify
+          # exits 1 on a genuine FAIL verdict, which this repo's own pre-
+          # record.v1-adoption history triggers (old commits lack the spec
+          # tag -- expected, already understood, not a new bug). Under
+          # `bash -e` that non-zero exit would skip the commit step below
+          # entirely -- silently failing to publish the report at exactly
+          # the moment it has something to say. Publishing the verdict,
+          # including a FAIL one, is the whole point of this workflow.
           npx --yes github:mochionxyz-beep/record-kit . \
             --url https://mochion.xyz/data/public.json \
-            --format verify-json --out data/verify.json
+            --format verify-json --out data/verify.json || true
 
       - name: Commit the report if it changed
         run: |

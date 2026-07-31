@@ -19,11 +19,21 @@ parties. Diff any two days yourself.
 
 The record is self-reported and unaudited, and the strategy code stays private. What you can
 verify here is that the numbers accumulate daily in public and are never quietly rewritten.
-Any corrected day gets a build-log entry.
+Any corrected day gets a build-log entry — see `data/amendments.json` for the ledger of every
+change ever made to an already-published figure, and why.
+
+This isn't just a claim in prose. [`record-kit`](https://github.com/mochionxyz-beep/record-kit)
+is the general, public toolkit this site's own verification runs on — the same schema, the same
+append-only rules, extracted so anyone can publish or check a record like this one. A separate,
+scheduled workflow (`.github/workflows/verify.yml`, never on push — a verifier issue must never
+block the record from deploying) runs `record-verify` against this repo's own history and writes
+`data/verify.json`, which `<verified-tape>` renders as the integrity line under the chart.
 
 ## Stack
 
-- Static HTML + CSS + a little vanilla JS (`js/tape.js` renders the record client-side).
+- Static HTML + CSS + minimal vanilla JS. The record renders via `<verified-tape>`
+  (`js/verified-tape.js` — a vendored copy of the component from
+  [`record-kit`](https://github.com/mochionxyz-beep/record-kit); see that repo to update it).
   No frameworks, no third-party CDNs or scripts, self-hosted everything (fonts included).
 - Retro animation is pure CSS (12fps `steps()` keyframes) with a `prefers-reduced-motion` guard.
 - Mobile-first layout; two-column comic panels arrive at ≥720px.
@@ -47,10 +57,15 @@ index.html            the landing "issue" — the world, the cast, The Tape
 log.html              build log — what broke, what got fixed, why (feeds /feed.xml)
 roadmap.html          Now / Next / Later playbill
 css/styles.css        design system (comic layer over the base tokens)
-js/                   tape.js + activity.js — client-side renderers for data/*.json
+js/                   verified-tape.js (record-kit's component) + activity.js — client-side
+                      renderers for data/*.json. js/tape.js is kept, unreferenced, as a
+                      one-line rollback of the verified-tape.js migration
 ci/                   deploy-time generators (OG card, Atom feed) — pinned, zero-runtime-deps
-data/                 sanitized telemetry (public.json pushed daily by the mochion-data bot)
-docs/telemetry.md     producer/consumer contract for the data pipeline
+data/                 sanitized telemetry: public.json (pushed daily by the mochion-data bot),
+                      verify.json (record-verify's report, written by verify.yml),
+                      amendments.json (the ledger of disclosed changes to public.json)
+docs/telemetry.md     producer/consumer contract for the data pipeline (defers to record-kit's
+                      SPEC.md for the schema itself)
 ```
 
 ## Data pipeline
