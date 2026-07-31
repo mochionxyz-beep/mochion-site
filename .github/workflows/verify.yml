@@ -28,7 +28,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npx --yes github:mochionxyz-beep/record-kit record-verify . \
+          # No "record-verify" after the package spec: record-kit's package.json
+          # `name` field IS "record-verify", matching one of its two declared
+          # bins, so npx resolves it automatically. Adding the name back in
+          # makes npx treat it as a second, unrelated package to install --
+          # confirmed the hard way: this exact line failed every run with
+          # "fatal: repository 'record-verify.git' not found" until fixed.
+          npx --yes github:mochionxyz-beep/record-kit . \
             --url https://mochion.xyz/data/public.json \
             --format verify-json --out data/verify.json
 
