@@ -102,6 +102,33 @@
 
     <div class="stars" aria-hidden="true">✦ ✦ ✦</div>
 
+    <article class="entry" id="2026-07-30-week-at-hq">
+      <time datetime="2026-07-30">Issue #0 · 2026-07-30</time>
+      <h2>A week at HQ</h2>
+      <div class="caption">
+        <span class="kicker">what got built</span>
+        The tape printed 7 days this week — 2 green, 5 red — up to day 60. Every one of them public.
+      </div>
+      <div class="caption">
+        <span class="kicker">around the workshop</span>
+        <ul style="margin:6px 0 0;padding-left:20px">
+        <li>📮 the dispatcher station saw 1 change</li>
+        <li>🔭 the lookout worked a crick out of the spyglass</li>
+        <li>🍡 verify.yml: document the GITHUB_TOKEN no-recursive-trigger lag</li>
+        <li>🍡 verify: refresh integrity report</li>
+        <li>🍡 verify.yml: tolerate a genuine FAIL verdict; README: describe what's actually running</li>
+        <li>🍡 verify.yml: fix the npx invocation that's been failing every run</li>
+        <li>🍡 Swap the homepage tape to &lt;verified-tape> (record-kit's component). Visually verified via headless-Chrome screenshots at 1440/390 against the shadow preview before shipping -- identical palette/layout, no regressions, and one intentional improvement: best/worst day now shows the correct percent return instead of the index-point delta. js/tape.js stays in the tree, unreferenced, as a one-line rollback. docs/telemetry.md now defers to record-kit's SPEC.md and drops the stale funding/hourly wording + the already-removed win_rate_pct/profit_factor fields</li>
+        <li>🍡 Shadow-deploy &lt;verified-tape>: vendor the record-kit component + an unlisted noindex preview page for comparison. New, separate verify.yml (scheduled, never on push, continue-on-error) writes data/verify.json. deploy.yml: complete Wayback evidence coverage for the data file + add the cache-bust pattern ahead of the eventual rename. Nothing on the live path changed -- index.html is untouched</li>
+        <li>🍡 Amendments ledger: every change to an already-published figure, on the record</li>
+        <li>🍡 Roadmap: Act I shipped, Act II is now — point the acts at what compounds</li>
+        </ul>
+      </div>
+    </article>
+
+
+    <div class="stars" aria-hidden="true">✦ ✦ ✦</div>
+
     <article class="entry" id="2026-07-16-week-at-hq">
       <time datetime="2026-07-16">Issue #0 · 2026-07-16</time>
       <h2>A week at HQ</h2>
