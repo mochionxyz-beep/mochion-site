@@ -48,6 +48,15 @@ jobs:
             --format verify-json --out data/verify.json || true
 
       - name: Commit the report if it changed
+        # NOTE: this push uses the default GITHUB_TOKEN, which GitHub
+        # deliberately excludes from triggering other workflows (loop
+        # prevention) -- so this commit does NOT redeploy the site on its
+        # own. The fresh report goes live at the next deploy for any other
+        # reason, which happens daily anyway via the box's 00:05 UTC push.
+        # Worst case is a report up to ~1 day stale, and <verified-tape>
+        # already degrades gracefully once a report exceeds --max-report-age
+        # -- not worth a second credential in this repo just to close that
+        # gap immediately.
         run: |
           git config user.name mochion
           git config user.email dev@mochion.xyz
