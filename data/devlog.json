@@ -1,17 +1,10 @@
 {
-  "week_start": "2026-07-25",
+  "week_start": "2026-07-26",
   "stations": [
     {
       "cast": "dispatcher",
       "changes": 1,
       "highlights": []
-    },
-    {
-      "cast": "lookout",
-      "changes": 1,
-      "highlights": [
-        "worked a crick out of the spyglass"
-      ]
     }
   ],
   "notes": []
