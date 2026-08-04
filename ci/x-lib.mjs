@@ -92,7 +92,11 @@ export async function whoAmI(c) {
 // self-replies from a parent's reply_count — the link reply must not count as engagement.
 export async function myRecentTweets(c, userId, max = 100) {
   const out = await call(c, 'GET', `https://api.twitter.com/2/users/${userId}/tweets`, {
-    query: { max_results: String(Math.min(100, Math.max(5, max))), 'tweet.fields': 'public_metrics,created_at,text,referenced_tweets', exclude: 'retweets' },
+    // `entities` is REQUIRED by smart-reply's idempotency check: X rewrites every
+    // URL in `text` into a t.co shortlink, so our own link-reply comes back as
+    // "the tape → https://t.co/xxxx" and a naive /mochion\.xyz/ test on `text`
+    // never matches. entities.urls[].expanded_url carries the real destination.
+    query: { max_results: String(Math.min(100, Math.max(5, max))), 'tweet.fields': 'public_metrics,created_at,text,referenced_tweets,entities', exclude: 'retweets' },
   });
   return out.data || [];
 }

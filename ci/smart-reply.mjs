@@ -23,24 +23,47 @@ const OPTS = {
   max: num(process.env.MAX_REPLIES, 2),
 };
 
+// Does this tweet already carry our tape link?
+//
+// THE BUG THIS EXISTS TO PREVENT: X rewrites every URL in a tweet's `text` into a
+// t.co shortlink, so our own posted link-reply comes back as
+// "the tape → https://t.co/xxxx" — a /mochion\.xyz/ test on `text` alone NEVER
+// matches it. That silently broke the idempotency check: a qualifying post got
+// re-linked every single day until it aged out of the recency window. Observed
+// live (same post linked two days running) before being caught.
+//
+// So check all three places the link can hide, and treat any hit as "linked":
+//   1. entities.urls[].expanded_url — the real destination (needs `entities` in
+//      tweet.fields; see myRecentTweets in x-lib.mjs)
+//   2. raw text — covers a link typed without X rewriting it
+//   3. the URL-FREE signature of LINK_REPLY — survives any future URL rewriting,
+//      t.co domain change, or entities being unavailable. Belt and braces: this
+//      check must fail CLOSED (treat as already-linked) rather than re-spam.
+export function carriesLink(t) {
+  const text = t.text || '';
+  if (/mochion\.xyz/i.test(text)) return true;
+  if (/the tape\s*(→|-&gt;|->)/i.test(text)) return true;   // LINK_REPLY's non-URL prefix
+  return (t.entities?.urls || []).some((u) =>
+    /mochion\.xyz/i.test(u.expanded_url || '') || /mochion\.xyz/i.test(u.display_url || ''));
+}
+
 // PURE: given our recent timeline, which originals deserve a link-reply right now?
 // Exported for tests — no network, deterministic via opts.now.
 export function pickToLink(tweets, opts = {}) {
   const { likesMin = 25, repliesMin = 8, imprMin = 5000, recentDays = 14, max = 2, now = Date.now() } = opts;
-  const HAS_LINK = /mochion\.xyz/i;
 
   // parents we've ALREADY linked: any of our replies to them that carries the link.
   const linked = new Set();
   for (const t of tweets) {
     if (!isReply(t)) continue;
     const rep = (t.referenced_tweets || []).find((r) => r.type === 'replied_to');
-    if (rep && HAS_LINK.test(t.text || '')) linked.add(rep.id);
+    if (rep && carriesLink(t)) linked.add(rep.id);
   }
 
   const crossed = (pm = {}) => (pm.like_count || 0) >= likesMin || (pm.reply_count || 0) >= repliesMin || (pm.impression_count || 0) >= imprMin;
   const cands = tweets.filter((t) => {
     if (isReply(t)) return false;                    // originals only — never a thread-tail or our own reply
-    if (HAS_LINK.test(t.text || '')) return false;   // it already carries the link in its own text
+    if (carriesLink(t)) return false;                // it already carries the link in its own text
     if (linked.has(t.id)) return false;              // we already dropped a link under it
     const ageD = (now - new Date(t.created_at).getTime()) / 864e5;
     if (!(ageD >= 0 && ageD <= recentDays)) return false;   // recent only (skip unparseable/future/old)

@@ -23,6 +23,14 @@ jobs:
       - name: Install CI generators (pinned)
         run: npm ci --prefix ci --no-audit --no-fund
 
+      # CI-script unit tests — NON-FATAL, deliberately. These guard the posting
+      # automations (e.g. smart-reply's idempotency, which once re-linked the
+      # same post daily because X rewrites URLs to t.co). Worth running on every
+      # push, but the daily record must deploy even if a test regresses: the
+      # record is the product, the automations are not.
+      - name: Test the CI scripts
+        run: npm test --prefix ci || echo "::warning::ci script tests FAILED — deploy continued (the record ships regardless), but fix this"
+
       # live OG card — NON-FATAL: a card bug must never block the daily record.
       # Falls back to the static index card so og:image always resolves.
       - name: Render live OG card
