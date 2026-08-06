@@ -38,7 +38,15 @@ function authHeader(c, method, url, extraParams = {}) {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ---- one HTTP call, with retry on 5xx / network --------------------------
-async function call(c, method, url, { form, json, multipart, query } = {}, tries = 3) {
+// TIMEOUTS ARE NOT OPTIONAL HERE. fetch() has no default timeout: if X accepts
+// the connection but never answers, the await below blocks forever and the
+// retry loop never even gets a turn. Seen live — a smart-reply run that
+// normally finishes in ~15s hung for 15 MINUTES before being cancelled.
+// Every X call in this repo (stamp, weekly, monthly, announce, smart-reply)
+// goes through here, so one missing signal hangs all of them.
+const DEFAULT_TIMEOUT_MS = 20_000;      // X is normally sub-second; 20s is already generous
+const UPLOAD_TIMEOUT_MS = 60_000;       // media upload legitimately takes longer
+async function call(c, method, url, { form, json, multipart, query, timeoutMs } = {}, tries = 3) {
   let body, contentType, sigParams = {};
   var target = url;
   if (query) { var qs = new URLSearchParams(query).toString(); target = url + '?' + qs; sigParams = { ...sigParams, ...query }; }
@@ -52,19 +60,30 @@ async function call(c, method, url, { form, json, multipart, query } = {}, tries
     ]);
     contentType = `multipart/form-data; boundary=${b}`;   // multipart params are excluded from the signature
   }
+  // per-ATTEMPT budget, so a timeout throws into the catch below and retries
+  // normally rather than killing the run. Worst case is bounded:
+  // 3 x 20s + backoff ≈ 65s, vs. the unbounded hang this replaces.
+  const budgetMs = timeoutMs ?? (multipart ? UPLOAD_TIMEOUT_MS : DEFAULT_TIMEOUT_MS);
   let lastErr;
   for (let attempt = 1; attempt <= tries; attempt++) {
     try {
       const res = await fetch(target, {
         method, body,
         headers: Object.assign({ Authorization: authHeader(c, method, url, sigParams) }, contentType ? { 'Content-Type': contentType } : {}),
+        signal: AbortSignal.timeout(budgetMs),
       });
       const out = await res.json().catch(() => ({}));
       if (res.ok) return out;
       // retry only transient server/network conditions — never a 4xx (auth, credits, duplicate)
       if (res.status >= 500 || res.status === 429) { lastErr = new Error(`${res.status} ${JSON.stringify(out).slice(0, 200)}`); }
       else throw new Error(`${method} ${url} -> ${res.status} ${JSON.stringify(out).slice(0, 300)}`);
-    } catch (e) { lastErr = e; }
+    } catch (e) {
+      // AbortSignal.timeout throws a bare TimeoutError/AbortError — name it, or a
+      // future hang looks like an unexplained crash in the logs.
+      lastErr = (e && (e.name === 'TimeoutError' || e.name === 'AbortError'))
+        ? new Error(`timed out after ${budgetMs}ms (no response from ${new URL(url).host})`)
+        : e;
+    }
     if (attempt < tries) { console.error(`x-lib: attempt ${attempt} failed (${lastErr.message}); retrying…`); await sleep(1500 * attempt); }
   }
   throw new Error(`${method} ${url} failed after ${tries} tries: ${lastErr && lastErr.message}`);

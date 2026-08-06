@@ -12,12 +12,18 @@ export async function notify(text, { loud = true } = {}) {
   if (!TOKEN || !CHAT) { console.error('notify: TELEGRAM_* absent — skip'); return false; }
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
+      // The header above promises a Telegram hiccup can never fail a post or
+      // deploy — but a HANG isn't a hiccup: fetch() has no default timeout, so
+      // without this signal a silent Telegram would block the caller forever.
+      // smart-reply calls notify() right after posting, so that hang would
+      // strand a job that had already done its real work.
       const res = await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chat_id: CHAT, text, parse_mode: 'HTML',
           disable_web_page_preview: true, disable_notification: !loud,
         }),
+        signal: AbortSignal.timeout(10_000),
       });
       if (res.ok) return true;
       const body = await res.text().catch(() => '');

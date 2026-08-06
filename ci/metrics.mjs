@@ -15,7 +15,7 @@ const REPO = process.env.GITHUB_REPOSITORY || 'mochionxyz-beep/mochion-site';
 const GH = process.env.GITHUB_TOKEN;
 const DRY = (process.env.DRY_RUN || 'false').toLowerCase() === 'true';
 const ghHeaders = GH ? { Authorization: `Bearer ${GH}`, Accept: 'application/vnd.github+json' } : { Accept: 'application/vnd.github+json' };
-const ghJSON = async (path) => { const r = await fetch(`https://api.github.com${path}`, { headers: ghHeaders }); return r.ok ? r.json() : null; };
+const ghJSON = async (path) => { const r = await fetch(`https://api.github.com${path}`, { headers: ghHeaders, signal: AbortSignal.timeout(15_000) }); return r.ok ? r.json() : null; };
 
 const row = { ts: new Date().toISOString().slice(0, 10) };
 

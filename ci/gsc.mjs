@@ -22,6 +22,7 @@ async function accessToken(sa) {
   const res = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion: jwt }),
+    signal: AbortSignal.timeout(15_000),
   });
   const j = await res.json();
   if (!res.ok) throw new Error(`GSC token: ${res.status} ${JSON.stringify(j).slice(0, 200)}`);
@@ -30,7 +31,7 @@ async function accessToken(sa) {
 
 async function query(token, site, body) {
   const res = await fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(site)}/searchAnalytics/query`,
-    { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(15_000) });
   const j = await res.json();
   if (!res.ok) throw new Error(`GSC query: ${res.status} ${JSON.stringify(j).slice(0, 200)}`);
   return j;

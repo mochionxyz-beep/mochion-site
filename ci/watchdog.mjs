@@ -14,7 +14,7 @@ let ageH = null, day = null, cardKB = null;
 
 // 1) the record is fresh
 try {
-  const r = await fetch(`${SITE}/data/public.json?${bust}`, { cache: 'no-store' });
+  const r = await fetch(`${SITE}/data/public.json?${bust}`, { cache: 'no-store', signal: AbortSignal.timeout(15_000) });
   if (!r.ok) throw new Error(`public.json HTTP ${r.status}`);
   const d = await r.json();
   if (d.status === 'no_data') {
@@ -31,7 +31,7 @@ try {
 
 // 2) the share card renders and isn't the tiny fallback
 try {
-  const r = await fetch(`${SITE}/og/tape.png?${bust}`, { cache: 'no-store' });
+  const r = await fetch(`${SITE}/og/tape.png?${bust}`, { cache: 'no-store', signal: AbortSignal.timeout(15_000) });
   if (!r.ok) throw new Error(`og/tape.png HTTP ${r.status}`);
   const buf = Buffer.from(await r.arrayBuffer());
   cardKB = buf.length / 1024;
