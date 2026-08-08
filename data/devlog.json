@@ -1,11 +1,5 @@
 {
-  "week_start": "2026-07-30",
-  "stations": [
-    {
-      "cast": "dispatcher",
-      "changes": 1,
-      "highlights": []
-    }
-  ],
+  "week_start": "2026-07-31",
+  "stations": [],
   "notes": []
 }
