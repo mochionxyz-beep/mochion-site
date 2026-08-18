@@ -13,7 +13,7 @@ import { tally } from './x-lib.mjs';
 const commits = (process.env.DIGEST_COMMITS || '').split('\n').map((s) => s.trim()).filter(Boolean);
 
 // group site commits by prefix, drop noise (data/metrics/merge)
-const NOISE = /^(data: |metrics:|Merge |CI: fix|Cache-bust)/i;
+const NOISE = /^(data: |verify: |metrics:|Merge |CI: fix|Cache-bust)/i;
 const meaningful = commits.filter((s) => !NOISE.test(s));
 
 const read = (p) => { try { return JSON.parse(readFileSync(new URL('../' + p, import.meta.url), 'utf8')); } catch { return null; } };
