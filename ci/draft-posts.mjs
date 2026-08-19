@@ -1,17 +1,29 @@
 #!/usr/bin/env node
 // Daily content drafter — the first step of the "draft → human approves →
-// posts" pipeline. Picks 3 distinct teach-first pillars, drafts one Gemini
-// candidate per pillar, drops anything guard.mjs rejects (regenerating once),
-// then sends whatever survives to Telegram numbered for a reply, and writes
-// them to ci/.draft-output/candidates.json for approve-post.mjs to pick up
-// via a same-day GitHub Actions artifact (see .github/workflows/content-*.yml
-// — this script has no opinion on HOW the artifact travels).
+// posts" pipeline. Picks 3 pillars, drafts one Gemini candidate per pillar,
+// drops anything guard.mjs rejects (regenerating once), then sends whatever
+// survives to Telegram numbered for a reply, and writes them to
+// ci/.draft-output/candidates.json for approve-post.mjs to pick up via a
+// same-day GitHub Actions artifact (see .github/workflows/content-*.yml —
+// this script has no opinion on HOW the artifact travels).
+//
+// MOSTLY general, standalone trading/investing/algo-trading knowledge — no
+// Mochion framing, no "the machine", stands on its own. Real user feedback
+// after the first live drafts: the Cast-narrative pillars ("the Referee
+// does X") read as in-universe flavor text, not knowledge worth following
+// an account for, and one pillar should ask a genuine open question so
+// people have something to reply to, not just read. GENERAL_PILLARS below
+// is that; MOCHION_PILLAR is the earlier build-in-public pillar, dialed
+// back to roughly one day in four (see todaysPillars) rather than a third
+// of every day's slate.
 //
 // Inputs are DELIBERATELY narrow: day count + this-week's green/red/flat
 // SHAPE (not magnitudes), the latest build-log title, one devlog note if
-// present. Nothing from data/public.json's actual percentages/sharpe/etc.
-// ever reaches the model — see ci/guard.test.mjs's header for why that
-// matters (the gate is a backstop, not a license, per the same philosophy
+// present — and ONLY for the Mochion pillar; general pillars get none of
+// this, on purpose, so they read as knowledge, not as a status update.
+// Nothing from data/public.json's actual percentages/sharpe/etc. ever
+// reaches the model — see ci/guard.test.mjs's header for why that matters
+// (the gate is a backstop, not a license, per the same philosophy
 // ops/week-notes.template.md already states for the box's leak gate).
 //
 // Exit codes the workflow branches on (same convention as draft-dispatch.mjs):
@@ -36,17 +48,26 @@ import { notify } from './notify.mjs';
 
 const DRY = (process.env.DRY_RUN || 'false').toLowerCase() === 'true';
 
-const PILLARS = [
-  { id: 'risk-craft', task: "Write one short, sober X post about the IDEA of a kill-switch — a mechanism that benches a strategy the moment it stops working, before it can do real damage. Use ONLY the Referee's job as described above; do not invent a metric, threshold, or mechanism beyond that plain description. Teach the general principle, not a fake specific." },
-  { id: 'verifiability', task: 'Write one short, sober X post making the case that a screenshot of trading results is worthless, but an append-only public commit history anyone can diff is real evidence. Make it read like an insight, not a slogan.' },
-  { id: 'publish-losses', task: 'Write one short, sober X post about the discipline of publishing a losing day as plainly as a winning one — the real failure is quietly skipping the bad ones, not the loss itself. Speak generally/philosophically; do not claim a specific loss or incident unless it is explicitly given to you below.' },
-  { id: 'build-in-public', task: "Write one short, sober X post about the GENERAL discipline of monitoring an automated system and owning mistakes plainly when they happen. This is a philosophy, not a report — do not invent a specific bug, outage, or incident. If today's grounding below gives you a real recent note or build-log title, you may reference THAT specifically; otherwise stay general." },
+// general, standalone knowledge — no Mochion framing, must read as useful on
+// its own to anyone in trading/investing, not just people who follow this account
+const GENERAL_PILLARS = [
+  { id: 'risk-wisdom', mochion: false, task: 'Write one short, sober X post sharing a genuinely useful, broadly-agreeable risk management principle that applies to ANY trader or investor — position sizing, cutting losses early, avoiding ruin, the asymmetry between protecting capital and chasing gains. Should feel obviously true to an experienced trader, not edgy or contrarian.' },
+  { id: 'psychology', mochion: false, task: 'Write one short, sober X post about trading psychology or discipline — a common behavioral pitfall (FOMO, revenge trading, sunk-cost thinking, overconfidence after a win streak) and the plain, practical fix. Broadly relatable to anyone who has traded or invested.' },
+  { id: 'algo-concepts', mochion: false, task: "Write one short, sober X post explaining a systematic/algorithmic trading concept simply and correctly — overfitting, backtesting pitfalls, survivorship bias, look-ahead bias, why paper trading differs from live execution, slippage. Teach the idea plainly enough that a beginner follows it and an experienced quant still nods." },
+  { id: 'market-wisdom', mochion: false, task: 'Write one short, sober X post sharing a timeless, broadly-agreeable investing or trading principle — time in the market vs timing it, compounding, diversification, why most failure is discipline, not strategy. Should read as wisdom nearly anyone in trading/investing would agree with.' },
+  { id: 'open-question', mochion: false, task: "Write ONE short, genuine, open-ended question about trading, investing, or algo-trading that invites real replies — something you are actually curious how other traders/builders handle (a risk rule they learned the hard way, how they size positions, what broke their first automated system, how they decide a strategy has stopped working). Must read as a sincere question with real curiosity behind it, not a rhetorical hook or engagement-bait gimmick. Just the question, at most one short sentence of setup. No self-answer." },
 ];
 
-// rotate WHICH 3-of-4 pillars show today, and in what order, so a week
-// cycles every pillar without the same 3 always appearing together.
+// the earlier, Mochion-specific pillar — kept, but now the occasional
+// exception (see todaysPillars), not the default.
+const MOCHION_PILLAR = { id: 'build-in-public', mochion: true, task: "Write one short, sober X post about the GENERAL discipline of monitoring an automated system and owning mistakes plainly when they happen. This is a philosophy, not a report — do not invent a specific bug, outage, or incident. If today's grounding below gives you a real recent note or build-log title, you may reference THAT specifically; otherwise stay general." };
+
+// 3 general pillars a day, rotating through all 5 so nothing repeats two
+// days running; the Mochion pillar swaps in for one slot roughly 1 day in 4.
 function todaysPillars(day) {
-  return [0, 1, 2].map((k) => PILLARS[(day + k) % PILLARS.length]);
+  const picks = [0, 1, 2].map((k) => GENERAL_PILLARS[(day + k) % GENERAL_PILLARS.length]);
+  if (day % 4 === 0) picks[2] = MOCHION_PILLAR;
+  return picks;
 }
 
 const read = (p) => { try { return JSON.parse(readFileSync(new URL('../' + p, import.meta.url), 'utf8')); } catch { return null; } };
@@ -74,44 +95,49 @@ const devlogNote = (devlog?.notes || []).filter(Boolean)[0] || null;
 // avoid restating recent posts — best-effort; a read failure here must never
 // block drafting, so any problem just means we draft without that context.
 let recentTexts = [];
-let c = null;
 try {
-  c = creds();
+  const c = creds();
   const me = await whoAmI(c);
   const recent = await myRecentTweets(c, me.id, 30);
   recentTexts = recent.filter((tw) => !isReply(tw)).slice(0, 15).map((tw) => tw.text);
 } catch (e) { console.error('draft-posts: recent-posts read skipped (' + e.message + ')'); }
 
 function buildPrompt(pillar) {
-  return `You are drafting ONE X (Twitter) post in the voice of Mochion, a build-in-public crypto trading project.
-
-VOICE — follow exactly:
-${VOICE_RULES.map((r) => '- ' + r).join('\n')}
-
+  const mochionSection = pillar.mochion ? `
 THE CAST — reference AT MOST one, only if it fits naturally, never forced:
 ${CAST.map((cc) => `- ${cc.name}: ${cc.job}`).join('\n')}
 
 catchphrases you may draw on sparingly, never force one in: ${CATCHPHRASES.join(' / ')}
 
-real examples of the voice, for calibration only — do NOT reuse these lines:
-${FEW_SHOT.slice(0, 8).map((l) => `"${l}"`).join('\n')}
+real examples of this project's voice, for calibration only — do NOT reuse these lines:
+${FEW_SHOT.slice(0, 6).map((l) => `"${l}"`).join('\n')}
+` : `
+This post is GENERAL trading/investing/algo-trading knowledge and must stand completely on its own. Do NOT mention Mochion, "the machine", "the Referee", or any project-specific framing. No "we/our project" language, no self-promotion. Just genuinely useful, broadly-agreeable knowledge any trader, investor, or founder would find valuable — the kind of thing that's true whether or not the reader has ever heard of this account.
+`;
 
-HARD RULES, no exceptions:
-- NEVER a percentage, dollar figure, ratio, or any performance number. day counts are the only numbers allowed.
-- NEVER a link or URL.
-- NEVER the words: invest, deposit, join, returns, alpha, token, NFT.
-- NEVER promise future performance ("will recover", "back to green soon").
-- NEVER weather, local time, a city, or any personal name.
-- NEVER invent a specific technical mechanism, metric, or threshold beyond the plain CAST descriptions above (no fake "three consecutive fills" or "variance thresholds" — this project's real mechanism is more sophisticated than that and a wrong guess is a false claim, not a simplification).
-- NEVER claim a specific event, incident, or narrative happened ("execution lagged", "we fixed a bug this week") unless it is explicitly given to you in today's grounding below. Speak in general/philosophical terms instead of inventing a specific.
-- under 260 characters. lowercase preferred. no hashtags. no emoji unless it is 🍡 and only if it truly fits.
-
+  const grounding = pillar.mochion ? `
 today's grounding — real, use if it helps, don't force all of it in:
 - day ${day} of the public record${toHundred > 0 && toHundred <= 30 ? ` (${toHundred} days to day 100)` : ''}
 - this past week's shape: ${weekShape || 'not enough days yet'}
 ${latestLogTitle ? `- most recent build-log entry: "${latestLogTitle}"` : ''}
 ${devlogNote ? `- a real recent note from the workshop: "${devlogNote}"` : ''}
-${recentTexts.length ? `\ndo NOT repeat the angle of these recent posts:\n${recentTexts.slice(0, 8).map((x) => `"${x}"`).join('\n')}` : ''}
+` : '';
+
+  return `You are drafting ONE X (Twitter) post for an account that mostly teaches broad, general trading/investing/algo-trading knowledge. It also build-in-publics a small crypto trading project called Mochion, but that is NOT today's topic unless stated below.
+
+VOICE — follow exactly:
+${VOICE_RULES.map((r) => '- ' + r).join('\n')}
+${mochionSection}
+HARD RULES, no exceptions:
+- NEVER a percentage, dollar figure, ratio, or any performance number. day counts are the only numbers allowed, and ONLY on Mochion-specific posts.
+- NEVER a link or URL.
+- NEVER the words: invest, deposit, join, returns, alpha, token, NFT.
+- NEVER promise future performance ("will recover", "back to green soon").
+- NEVER weather, local time, a city, or any personal name.
+- NEVER invent a specific technical mechanism, metric, or threshold — teach the general, correct idea, not a fabricated specific.
+- NEVER claim a specific event, incident, or narrative happened unless it is explicitly given to you in today's grounding below.
+- under 260 characters. lowercase preferred. no hashtags. no emoji unless it is 🍡 and only on a Mochion-specific post where it truly fits.
+${grounding}${recentTexts.length ? `\ndo NOT repeat the angle of these recent posts:\n${recentTexts.slice(0, 8).map((x) => `"${x}"`).join('\n')}` : ''}
 
 TASK: ${pillar.task}
 
@@ -138,8 +164,6 @@ console.error(`draft-posts: day ${day} · pillars = ${pillarsToday.map((p) => p.
 const drafted = (await Promise.all(pillarsToday.map(draftOne))).filter(Boolean);
 
 if (!drafted.length) {
-  // exit 3 = "quiet, no draft" — same convention draft-dispatch.mjs already
-  // uses; the workflow's bash step reads the exit code, not stdout.
   console.error('draft-posts: nothing clean drafted today — skipping (this is fine; not every day has to post)');
   process.exit(3);
 }
