@@ -57,6 +57,10 @@ export async function pollReply(sinceMs, patterns) {
       .filter((m) => m && String(m.chat?.id) === String(CHAT) && typeof m.text === 'string' && m.date * 1000 > sinceMs)
       .filter((m) => patterns.some((p) => p.test(m.text.trim())))
       .sort((a, b) => b.date - a.date);
+    if (matches.length) {
+      console.error(`notify: pollReply matched ${matches.length} candidate(s) since ${new Date(sinceMs).toISOString()} (latest wins):`);
+      matches.forEach((m) => console.error(`  ${new Date(m.date * 1000).toISOString()} "${m.text.trim()}"`));
+    }
     return matches[0] ? matches[0].text.trim() : null;
   } catch (e) { console.error('notify: pollReply failed: ' + e.message); return null; }
 }
