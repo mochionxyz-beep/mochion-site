@@ -4,7 +4,7 @@
   "type": "module",
   "description": "Deploy-time generators: the live OG tape card and the Atom feed. No site runtime deps.",
   "scripts": {
-    "test": "node --test smart-reply.test.mjs"
+    "test": "node --test *.test.mjs"
   },
   "dependencies": {
     "@resvg/resvg-js": "2.6.2"

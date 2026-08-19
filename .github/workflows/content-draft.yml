@@ -1,0 +1,68 @@
+name: Draft content
+
+# Daily: drafts 3 teach-first candidates (ci/draft-posts.mjs — 3 pillars,
+# Gemini, every candidate re-checked by ci/guard.mjs before it's kept),
+# sends them to Telegram numbered for a reply, and uploads them as a
+# short-lived artifact for content-approve.yml to pick up later the same day.
+# Never posts anything itself — see content-approve.yml for the "going live"
+# half. Quiet days (nothing clean drafted, or no_data) are normal: exit 3.
+on:
+  schedule:
+    - cron: '0 11 * * *'      # daily 11:00 UTC — clear of every other cron
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: draft + notify Telegram, but skip candidates.json / the artifact
+        default: 'true'
+
+concurrency:
+  group: content-draft
+  cancel-in-progress: false
+
+permissions:
+  contents: read             # candidates go to Telegram + an artifact; nothing is committed
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install CI generators (pinned)
+        run: npm ci --prefix ci --no-audit --no-fund
+      - name: Draft today's candidates
+        id: draft
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+        run: |
+          if node ci/draft-posts.mjs; then
+            echo "ran=ok" >> "$GITHUB_OUTPUT"
+          else
+            code=$?
+            if [ "$code" = "3" ]; then echo "draft: quiet day — no candidates"; echo "ran=quiet" >> "$GITHUB_OUTPUT"; exit 0; fi
+            exit $code
+          fi
+      # Authoritative signal for whether there's anything to upload: the file
+      # actually existing, not the exit code alone — a DRY_RUN also exits 0
+      # but deliberately never writes candidates.json (see draft-posts.mjs).
+      - name: Check for a real draft
+        id: check
+        if: steps.draft.outputs.ran == 'ok'
+        run: |
+          if [ -f ci/.draft-output/candidates.json ]; then
+            echo "have_draft=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "have_draft=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: steps.check.outputs.have_draft == 'true'
+        with:
+          name: mochion-content-draft
+          path: ci/.draft-output/candidates.json
+          retention-days: 1

@@ -35,6 +35,32 @@ export async function notify(text, { loud = true } = {}) {
   return false;
 }
 
+// Poll for a human reply in the control-room chat, for the content-approve
+// pipeline (see ci/approve-post.mjs). Looks at messages sent AFTER `sinceMs`
+// (epoch ms) matching one of `patterns`; if several qualify, the LATEST wins
+// (a changed mind should override an earlier reply). Returns the matched
+// text, or null if none/absent creds/request failure — every case degrades
+// to "no reply", which the caller treats as "skip today", never an error.
+//
+// No offset/ack tracking on purpose: every call re-reads Telegram's whole
+// backlog and filters by sinceMs client-side, so there's no cross-run state
+// to lose. Telegram itself drops unacknowledged updates after ~24h, which is
+// far longer than one day's approval window needs.
+export async function pollReply(sinceMs, patterns) {
+  if (!TOKEN || !CHAT) { console.error('notify: TELEGRAM_* absent — skip'); return null; }
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${TOKEN}/getUpdates?limit=100`, { signal: AbortSignal.timeout(10_000) });
+    const j = await res.json();
+    if (!j.ok) { console.error('notify: getUpdates failed: ' + JSON.stringify(j).slice(0, 200)); return null; }
+    const matches = (j.result || [])
+      .map((u) => u.message)
+      .filter((m) => m && String(m.chat?.id) === String(CHAT) && typeof m.text === 'string' && m.date * 1000 > sinceMs)
+      .filter((m) => patterns.some((p) => p.test(m.text.trim())))
+      .sort((a, b) => b.date - a.date);
+    return matches[0] ? matches[0].text.trim() : null;
+  } catch (e) { console.error('notify: pollReply failed: ' + e.message); return null; }
+}
+
 // CLI entry — used by the universal failure-catcher workflow
 if (import.meta.url === `file://${process.argv[1]}`) {
   const args = process.argv.slice(2);

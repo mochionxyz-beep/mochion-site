@@ -1,0 +1,62 @@
+name: Approve content
+
+# Daily, a few hours after Draft content: finds that run's artifact, and
+# posts whichever candidate the human replied to in Telegram (see
+# ci/approve-post.mjs for the actual rule — no reply, a stale draft, or an
+# explicit "skip" all resolve to "post nothing", silently, every time. This
+# is the ONLY place in the whole content pipeline that ever calls postTweet.
+on:
+  schedule:
+    - cron: '0 19 * * *'      # daily 19:00 UTC — an ~8h reply window after the 11:00 draft
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: resolve + log the pick, but skip postTweet
+        default: 'true'
+
+concurrency:
+  group: content-approve
+  cancel-in-progress: false
+
+permissions:
+  contents: read              # nothing is committed
+  actions: read                # `gh run list` + cross-run download-artifact need this
+
+jobs:
+  approve:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Find today's draft run
+        id: find
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          run_id=$(gh run list --repo "${{ github.repository }}" --workflow=content-draft.yml \
+            --status=success --limit=1 --json databaseId -q '.[0].databaseId' || true)
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          if [ -z "$run_id" ]; then echo "approve: no successful Draft content run found — nothing to approve"; fi
+
+      - uses: actions/download-artifact@v4
+        if: steps.find.outputs.run_id != ''
+        continue-on-error: true   # no artifact (e.g. a quiet draft day) must not fail this job
+        with:
+          name: mochion-content-draft
+          run-id: ${{ steps.find.outputs.run_id }}
+          github-token: ${{ github.token }}
+          path: ci/.draft-output
+
+      - name: Install CI generators (pinned)
+        run: npm ci --prefix ci --no-audit --no-fund
+
+      - name: Resolve the reply and post
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+        run: node ci/approve-post.mjs

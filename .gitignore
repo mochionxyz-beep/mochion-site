@@ -9,6 +9,11 @@ dist/
 /og/
 /feed.xml
 
+# same-day handoff between draft-posts.mjs and approve-post.mjs — travels as
+# a short-retention GitHub Actions artifact, never as a commit (candidates
+# not yet approved would otherwise become permanently public in git history)
+ci/.draft-output/
+
 # secrets & local infra — NEVER commit
 .env
 .env.*

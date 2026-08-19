@@ -15,6 +15,8 @@ on:
       - Metrics
       - Draft weekly dispatch
       - Smart link reply
+      - Draft content
+      - Approve content
     types: [completed]
 
 jobs:
