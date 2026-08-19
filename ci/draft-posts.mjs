@@ -51,16 +51,16 @@ const DRY = (process.env.DRY_RUN || 'false').toLowerCase() === 'true';
 // general, standalone knowledge — no Mochion framing, must read as useful on
 // its own to anyone in trading/investing, not just people who follow this account
 const GENERAL_PILLARS = [
-  { id: 'risk-wisdom', mochion: false, task: 'Write one short, sober X post sharing a genuinely useful, broadly-agreeable risk management principle that applies to ANY trader or investor — position sizing, cutting losses early, avoiding ruin, the asymmetry between protecting capital and chasing gains. Should feel obviously true to an experienced trader, not edgy or contrarian.' },
-  { id: 'psychology', mochion: false, task: 'Write one short, sober X post about trading psychology or discipline — a common behavioral pitfall (FOMO, revenge trading, sunk-cost thinking, overconfidence after a win streak) and the plain, practical fix. Broadly relatable to anyone who has traded or invested.' },
-  { id: 'algo-concepts', mochion: false, task: "Write one short, sober X post explaining a systematic/algorithmic trading concept simply and correctly — overfitting, backtesting pitfalls, survivorship bias, look-ahead bias, why paper trading differs from live execution, slippage. Teach the idea plainly enough that a beginner follows it and an experienced quant still nods." },
-  { id: 'market-wisdom', mochion: false, task: 'Write one short, sober X post sharing a timeless, broadly-agreeable investing or trading principle — time in the market vs timing it, compounding, diversification, why most failure is discipline, not strategy. Should read as wisdom nearly anyone in trading/investing would agree with.' },
-  { id: 'open-question', mochion: false, task: "Write ONE short, genuine, open-ended question about trading, investing, or algo-trading that invites real replies — something you are actually curious how other traders/builders handle (a risk rule they learned the hard way, how they size positions, what broke their first automated system, how they decide a strategy has stopped working). Must read as a sincere question with real curiosity behind it, not a rhetorical hook or engagement-bait gimmick. Just the question, at most one short sentence of setup. No self-answer." },
+  { id: 'risk-wisdom', mochion: false, task: 'ONE plain sentence of risk-management wisdom that applies to any trader — pick just ONE of: position sizing, cutting losses early, protecting capital over chasing gains. Say only that one thing, in one breath. Do not stack a second point onto it.' },
+  { id: 'psychology', mochion: false, task: 'ONE plain sentence about a trading psychology pitfall (FOMO, revenge trading, sunk-cost thinking, overconfidence after a win). Name the pitfall, or the fix — not a full explanation of both. One breath.' },
+  { id: 'algo-concepts', mochion: false, task: "ONE plain sentence explaining a single systematic-trading concept (overfitting, backtesting pitfalls, survivorship bias, look-ahead bias, slippage, paper vs live) simply enough a beginner gets it instantly. Pick one concept, not a list." },
+  { id: 'market-wisdom', mochion: false, task: 'ONE plain sentence of timeless investing wisdom — time in the market, compounding, diversification, discipline over strategy. Pick ONE, say it plainly, stop.' },
+  { id: 'open-question', mochion: false, task: "ONE short, genuine, open-ended question about trading, investing, or algo-trading that invites real replies — something you're actually curious how other traders/builders handle. Must read as sincere curiosity, not a rhetorical hook. The question ONLY — no setup sentence, no self-answer." },
 ];
 
 // the earlier, Mochion-specific pillar — kept, but now the occasional
 // exception (see todaysPillars), not the default.
-const MOCHION_PILLAR = { id: 'build-in-public', mochion: true, task: "Write one short, sober X post about the GENERAL discipline of monitoring an automated system and owning mistakes plainly when they happen. This is a philosophy, not a report — do not invent a specific bug, outage, or incident. If today's grounding below gives you a real recent note or build-log title, you may reference THAT specifically; otherwise stay general." };
+const MOCHION_PILLAR = { id: 'build-in-public', mochion: true, task: "ONE plain sentence about the discipline of monitoring an automated system and owning mistakes honestly. A principle, not a report — do not invent a specific bug, outage, or incident. If today's grounding below gives you a real recent note or build-log title, you may reference THAT specifically and briefly; otherwise stay general and short." };
 
 // 3 general pillars a day, rotating through all 5 so nothing repeats two
 // days running; the Mochion pillar swaps in for one slot roughly 1 day in 4.
@@ -136,7 +136,9 @@ HARD RULES, no exceptions:
 - NEVER weather, local time, a city, or any personal name.
 - NEVER invent a specific technical mechanism, metric, or threshold — teach the general, correct idea, not a fabricated specific.
 - NEVER claim a specific event, incident, or narrative happened unless it is explicitly given to you in today's grounding below.
-- under 260 characters. lowercase preferred. no hashtags. no emoji unless it is 🍡 and only on a Mochion-specific post where it truly fits.
+- SHORT. Target 60–120 characters, hard cap 140. ONE idea, ONE breath. If you have two points, keep the stronger one and delete the rest — do not stack clauses with "and"/"so"/semicolons to fit more in. A reader should get it in under 3 seconds.
+- lowercase preferred. no hashtags. no emoji unless it is 🍡 and only on a Mochion-specific post where it truly fits.
+- length calibration, this is the target register: "cutting losses early is the whole skill. everything else is commentary." — that short, that plain, ONE thought.
 ${grounding}${recentTexts.length ? `\ndo NOT repeat the angle of these recent posts:\n${recentTexts.slice(0, 8).map((x) => `"${x}"`).join('\n')}` : ''}
 
 TASK: ${pillar.task}
