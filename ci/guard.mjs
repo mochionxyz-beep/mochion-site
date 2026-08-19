@@ -39,6 +39,13 @@ const RE_IDENTITY = /haufung|hayden|tang|htca/i;
 const RE_LOCAL_TIME = /\bhere in\b|\blocal time\b|\bmy (city|town|neighbou?rhood|country|state|province)\b|\b(EST|EDT|PST|PDT|CST|CDT|MST|MDT|BST|CET|CEST|JST|IST)\b/;
 const RE_WEATHER = /\b(sunny out|raining|it'?s raining|snowing|it'?s snowing|cloudy today|humid out|heatwave)\b/i;
 
+// Real fabrication caught in ops/reply.mjs testing: asked to describe how
+// the record is verified, the model invented "we put our raw ledger on a
+// public chain" — Mochion's mechanism is an append-only git commit history
+// on GitHub, never a blockchain. A prompt instruction alone already failed
+// to prevent this once; this is the hard backstop.
+const RE_CHAIN_CLAIM = /\b(blockchain|chain|smart contract)\b/i;
+
 const RE_URL = /https?:\/\/\S+|\bwww\.\S+/i;
 const RE_BARE_DOMAIN = new RegExp('\\b[a-z0-9-]+\\.' + BRAND_SITE.split('.').pop() + '\\b|\\b[a-z0-9-]+\\.(com|io|net|org|co|dev)\\b', 'i');
 
@@ -81,6 +88,8 @@ export function check(text) {
   if (RE_WEATHER.test(text)) add('anonymity', 'weather chatter');
 
   if (RE_URL.test(text) || RE_BARE_DOMAIN.test(text)) add('link-in-body', 'a link belongs in the self-reply, not the post');
+
+  if (RE_CHAIN_CLAIM.test(text)) add('false-mechanism', 'the record is git commits on GitHub, not a blockchain — see comment above RE_CHAIN_CLAIM');
 
   if (typeof text === 'string' && text.length > MAX_LEN) add('length', `${text.length} chars > ${MAX_LEN}`);
 

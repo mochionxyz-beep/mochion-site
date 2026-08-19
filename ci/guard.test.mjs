@@ -60,6 +60,15 @@ test('"return" the verb is NOT banned — only "returns" the financial noun', ()
   passes('the machine will return to normal hours tomorrow.');
 });
 
+test('REGRESSION: a fabricated blockchain claim — real failure caught testing ops/reply.mjs', () => {
+  rejects('we put our raw ledger on a public chain so there is no way to hide the bad days.', 'false-mechanism');
+  rejects('the whole record lives on-chain, verifiable by anyone.', 'false-mechanism');
+  rejects('it settles through a smart contract, so nobody can edit it.', 'false-mechanism');
+});
+test('the real mechanism (git commits on GitHub) is not itself banned', () => {
+  passes('every day lands as a git commit on a history that can’t be rewritten.');
+});
+
 test('forward-looking performance promises', () => {
   rejects("we'll bounce back tomorrow, promise.", 'forward-promise');
   rejects('back to green soon.', 'forward-promise');
