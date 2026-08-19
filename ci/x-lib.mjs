@@ -19,6 +19,12 @@ export function creds(env = process.env) {
   return c;
 }
 
+// Read a JSON file relative to the SITE ROOT (one level up from ci/), null
+// on any failure (missing file, bad JSON) — never throws. Callers live in
+// ci/, same directory as this module, so '../' + p resolves identically
+// whether computed from the caller's import.meta.url or from here.
+export const readJson = (p) => { try { return JSON.parse(readFileSync(new URL('../' + p, import.meta.url), 'utf8')); } catch { return null; } };
+
 // ---- OAuth 1.0a signing ----------------------------------------------------
 const pct = (s) => encodeURIComponent(s).replace(/[!'()*]/g, (ch) => '%' + ch.charCodeAt(0).toString(16).toUpperCase());
 function authHeader(c, method, url, extraParams = {}) {
@@ -146,6 +152,15 @@ export function tally(curve, prevClose = 100) {
   const t = { green: 0, red: 0, flat: 0 };
   dayDeltas(curve, prevClose).forEach((d) => { t[outcome(d)]++; });
   return t;
+}
+
+// tally() over just the last `days` entries, falling back to a prevClose of
+// 100 when the curve doesn't reach back far enough for a real one.
+export function weekTally(curve, days = 7) {
+  const week = curve.slice(-days);
+  const dayBefore = curve[curve.length - days - 1];
+  const prev = dayBefore ? (dayBefore.close ?? dayBefore.value) : 100;
+  return tally(week, prev);
 }
 
 // ---- daily caption pools (day-number keyed; never a % in the text) --------

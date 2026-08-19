@@ -39,10 +39,10 @@
 // entirely in approve-post.mjs.
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { creds, whoAmI, myRecentTweets, isReply, tally } from './x-lib.mjs';
+import { creds, whoAmI, myRecentTweets, isReply, weekTally, readJson } from './x-lib.mjs';
 import { generate } from './gemini.mjs';
 import { check } from './guard.mjs';
-import { CAST, CATCHPHRASES, VOICE_RULES, FEW_SHOT } from './voice.mjs';
+import { CAST, CATCHPHRASES, VOICE_RULES, FEW_SHOT, BANNED_CTAS } from './voice.mjs';
 import { parseLogEntries, sortEntriesDesc } from './log-entries.mjs';
 import { notify } from './notify.mjs';
 
@@ -70,27 +70,39 @@ function todaysPillars(day) {
   return picks;
 }
 
-const read = (p) => { try { return JSON.parse(readFileSync(new URL('../' + p, import.meta.url), 'utf8')); } catch { return null; } };
-
-const d = read('data/public.json');
+const d = readJson('data/public.json');
 if (!d || d.status === 'no_data' || !d.equity_curve?.length) {
   // exit 3 = "no draft", same bucket as "nothing clean drafted" below — the
   // workflow branches on this exit code (see content-draft.yml).
   console.error('draft-posts: no_data — nothing to draft'); process.exit(3);
 }
+if (!process.env.GEMINI_API_KEY) {
+  // fails the same way generate() would for every pillar anyway — check
+  // here too so a misconfigured run skips the X-API calls below entirely
+  // instead of paying for them and discarding the result.
+  console.error('draft-posts: GEMINI_API_KEY absent — nothing to draft'); process.exit(3);
+}
+
 const day = d.days_live;
-const toHundred = 100 - day;
-const week = d.equity_curve.slice(-7);
-const prev = d.equity_curve[d.equity_curve.length - 8] ? (d.equity_curve[d.equity_curve.length - 8].close ?? d.equity_curve[d.equity_curve.length - 8].value) : 100;
-const t = tally(week, prev);
-const weekShape = [t.green && `${t.green} green`, t.red && `${t.red} red`, t.flat && `${t.flat} flat`].filter(Boolean).join(', ');
+const pillarsToday = todaysPillars(day);
+const needsMochionContext = pillarsToday.some((p) => p.mochion);
 
-const html = (() => { try { return readFileSync(new URL('../log.html', import.meta.url), 'utf8'); } catch { return ''; } })();
-const entries = sortEntriesDesc(parseLogEntries(html).filter((e) => e.date && e.title));
-const latestLogTitle = entries[0]?.title || null;
+// This grounding is real, but only the Mochion pillar ever reads it —
+// roughly 3 of every 4 days select none, so skip the file reads and the
+// week-shape computation entirely rather than compute-and-discard them.
+let toHundred = 0, weekShape = '', latestLogTitle = null, devlogNote = null;
+if (needsMochionContext) {
+  toHundred = 100 - day;
+  const t = weekTally(d.equity_curve);
+  weekShape = [t.green && `${t.green} green`, t.red && `${t.red} red`, t.flat && `${t.flat} flat`].filter(Boolean).join(', ');
 
-const devlog = read('data/devlog.json');
-const devlogNote = (devlog?.notes || []).filter(Boolean)[0] || null;
+  const html = (() => { try { return readFileSync(new URL('../log.html', import.meta.url), 'utf8'); } catch { return ''; } })();
+  const entries = sortEntriesDesc(parseLogEntries(html).filter((e) => e.date && e.title));
+  latestLogTitle = entries[0]?.title || null;
+
+  const devlog = readJson('data/devlog.json');
+  devlogNote = (devlog?.notes || []).filter(Boolean)[0] || null;
+}
 
 // avoid restating recent posts — best-effort; a read failure here must never
 // block drafting, so any problem just means we draft without that context.
@@ -131,7 +143,7 @@ ${mochionSection}
 HARD RULES, no exceptions:
 - NEVER a percentage, dollar figure, ratio, or any performance number. day counts are the only numbers allowed, and ONLY on Mochion-specific posts.
 - NEVER a link or URL.
-- NEVER the words: invest, deposit, join, returns, alpha, token, NFT.
+- NEVER the words: ${BANNED_CTAS.join(', ')}.
 - NEVER promise future performance ("will recover", "back to green soon").
 - NEVER weather, local time, a city, or any personal name.
 - NEVER invent a specific technical mechanism, metric, or threshold — teach the general, correct idea, not a fabricated specific.
@@ -160,7 +172,6 @@ async function draftOne(pillar) {
   return null;
 }
 
-const pillarsToday = todaysPillars(day);
 console.error(`draft-posts: day ${day} · pillars = ${pillarsToday.map((p) => p.id).join(', ')}`);
 
 const drafted = (await Promise.all(pillarsToday.map(draftOne))).filter(Boolean);

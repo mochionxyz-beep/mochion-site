@@ -6,8 +6,8 @@
 // This is the first LLM integration in the repo. draft-dispatch.mjs's header
 // says content generation was "deterministic template (no LLM) for voice
 // control" — that guarantee now lives in ci/guard.mjs instead. Every caller
-// of generate()/generateN() MUST run the result through guard.check() before
-// it reaches a human or X. This file has no opinion on voice; voice.mjs does.
+// of generate() MUST run the result through guard.check() before it reaches
+// a human or X. This file has no opinion on voice; voice.mjs does.
 //
 // thinkingBudget:0 is NOT optional — confirmed live against the real API:
 // gemini-3.5-flash defaults to extended "thinking" that consumes the output
@@ -18,8 +18,10 @@
 //
 // candidateCount > 1 is NOT supported on this model/tier — confirmed live
 // (400 INVALID_ARGUMENT "Multiple candidates is not enabled for this
-// model"). generateN() therefore fires N parallel single-candidate requests
-// rather than asking for N candidates in one call.
+// model"). generate() therefore always requests exactly one candidate;
+// callers needing several (draft-posts.mjs's pillars, ops/reply.mjs's
+// two-reply-drafts) call it multiple times — see draft-posts.mjs's
+// Promise.all over pillars for how that's done concurrently.
 
 const MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
 const TIMEOUT_MS = 20_000;
@@ -59,7 +61,8 @@ async function call(apiKey, prompt, { temperature = 0.9, maxOutputTokens = 200 }
     }
     throw new Error(`gemini ${res.status}: ${JSON.stringify(out).slice(0, 300)}`);
   }
-  throw new Error(`gemini: failed after ${tries} tries: ${lastErr && lastErr.message}`);
+  // unreachable: every branch above this loop returns, throws, or (only
+  // while attempt < tries) continues — so the loop can never fall through.
 }
 
 // One generated string, or null if GEMINI_API_KEY is absent.
@@ -67,20 +70,4 @@ export async function generate(prompt, opts, env = process.env) {
   const key = env.GEMINI_API_KEY;
   if (!key) { console.error('gemini: GEMINI_API_KEY absent — skipping generation'); return null; }
   return call(key, prompt, opts);
-}
-
-// N candidates via N parallel requests (see header — candidateCount isn't
-// available). Each failure is caught individually so one bad draw doesn't
-// sink the batch; returns whatever succeeded (possibly fewer than n, or an
-// empty array), or null if GEMINI_API_KEY is absent entirely.
-export async function generateN(prompt, n, opts, env = process.env) {
-  const key = env.GEMINI_API_KEY;
-  if (!key) { console.error('gemini: GEMINI_API_KEY absent — skipping generation'); return null; }
-  const results = await Promise.allSettled(Array.from({ length: n }, () => call(key, prompt, opts)));
-  const out = [];
-  for (const r of results) {
-    if (r.status === 'fulfilled') out.push(r.value);
-    else console.error('gemini: one candidate failed: ' + r.reason?.message);
-  }
-  return out;
 }
