@@ -12,6 +12,14 @@
       "reason": "The system had been running before the record was made public, so its existing history was published in one commit. Those days are part of the record, but they were not witnessed in public as they happened — only the days published from 2026-07-10 onward were."
     },
     {
+      "date": "2026-07-10",
+      "commit": "e9efb02",
+      "type": "correction",
+      "affects": { "from": "2026-05-28", "to": "2026-07-09" },
+      "summary": "Every figure from the backfill above was replaced 46 minutes after it was first published.",
+      "reason": "The backfill commit (6a41784) published the earliest 12 days as flat placeholders and the rest under a realized-only P&L definition. This commit, 46 minutes later the same day, filled in the missing days and recomputed the entire 43-day history under the finalized definition (marks unrealized P&L, subtracts commission) — so every day's value moved, not just the placeholders. This happened at initial launch, before the record had a live audience."
+    },
+    {
       "date": "2026-07-16",
       "commit": "fecd121",
       "type": "trim",
