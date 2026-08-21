@@ -7,7 +7,7 @@
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { creds, uploadCard, postTweet, tally, LINK_REPLY } from './x-lib.mjs';
+import { creds, uploadCard, postTweet, weekTally, LINK_REPLY } from './x-lib.mjs';
 import { notify } from './notify.mjs';
 
 // render og/tape.png fresh — called only after the guards pass and it's a real
@@ -28,8 +28,7 @@ const full = d.equity_curve;
 if (full.length < 7) { console.error('weekly: <7 days — skip'); process.exit(0); }
 
 const week = full.slice(-7);
-const prev = full[full.length - 8] ? (full[full.length - 8].close ?? full[full.length - 8].value) : 100;
-const t = tally(week, prev);
+const t = weekTally(full);
 const dayEnd = d.days_live, dayStart = dayEnd - week.length + 1;
 
 // counts-only body, in the house voice

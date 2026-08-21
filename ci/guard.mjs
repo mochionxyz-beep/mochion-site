@@ -70,7 +70,7 @@ export function check(text) {
 
   // everything below assumes a valid, non-empty string — bail out early
   // rather than run 15 regexes against a coerced "undefined"
-  if (typeof text !== 'string' || !text.trim()) return { ok: false, violations: [{ rule: 'empty', detail: 'no text' }], warnings: [] };
+  if (typeof text !== 'string' || !text.trim()) { add('empty', 'no text'); return { ok: false, violations, warnings: [] }; }
 
   if (RE_DECIMAL.test(text)) add('numeric', 'decimal number — reads as a stat, must live in the card only');
   if (RE_PERCENT.test(text)) add('numeric', 'percent figure in text');

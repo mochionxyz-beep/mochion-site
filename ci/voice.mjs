@@ -49,5 +49,3 @@ export const FEW_SHOT = [
 // The documented "NEVER" CTA words (ops/x-playbook.md, "Voice & red lines").
 // Exported so guard.mjs enforces exactly this list — one source of truth.
 export const BANNED_CTAS = ['invest', 'investing', 'investment', 'deposit', 'depositing', 'join', 'joining', 'returns', 'alpha', 'token', 'nft'];
-
-export const BRAND_SITE = 'mochion.xyz';

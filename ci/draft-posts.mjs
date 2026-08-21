@@ -38,8 +38,9 @@
 // control room, not going live. The actual "going live" action lives
 // entirely in approve-post.mjs.
 
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { creds, whoAmI, myRecentTweets, isReply, weekTally, readJson } from './x-lib.mjs';
+import { writeFileSync, mkdirSync } from 'node:fs';
+import { creds, whoAmI, myRecentTweets, isReply, weekTally } from './x-lib.mjs';
+import { readJson, readText } from './file-utils.mjs';
 import { generate } from './gemini.mjs';
 import { check } from './guard.mjs';
 import { CAST, CATCHPHRASES, VOICE_RULES, FEW_SHOT, BANNED_CTAS } from './voice.mjs';
@@ -90,19 +91,21 @@ const needsMochionContext = pillarsToday.some((p) => p.mochion);
 // This grounding is real, but only the Mochion pillar ever reads it —
 // roughly 3 of every 4 days select none, so skip the file reads and the
 // week-shape computation entirely rather than compute-and-discard them.
-let toHundred = 0, weekShape = '', latestLogTitle = null, devlogNote = null;
-if (needsMochionContext) {
-  toHundred = 100 - day;
+// null (not a pillar today) vs. an object (all 4 fields always together)
+// so buildPrompt can't end up with some fields set and others still at a
+// stale default.
+const mochionGrounding = !needsMochionContext ? null : (() => {
   const t = weekTally(d.equity_curve);
-  weekShape = [t.green && `${t.green} green`, t.red && `${t.red} red`, t.flat && `${t.flat} flat`].filter(Boolean).join(', ');
-
-  const html = (() => { try { return readFileSync(new URL('../log.html', import.meta.url), 'utf8'); } catch { return ''; } })();
-  const entries = sortEntriesDesc(parseLogEntries(html).filter((e) => e.date && e.title));
-  latestLogTitle = entries[0]?.title || null;
-
+  const weekShape = [t.green && `${t.green} green`, t.red && `${t.red} red`, t.flat && `${t.flat} flat`].filter(Boolean).join(', ');
+  const entries = sortEntriesDesc(parseLogEntries(readText('log.html')).filter((e) => e.date && e.title));
   const devlog = readJson('data/devlog.json');
-  devlogNote = (devlog?.notes || []).filter(Boolean)[0] || null;
-}
+  return {
+    toHundred: 100 - day,
+    weekShape,
+    latestLogTitle: entries[0]?.title || null,
+    devlogNote: (devlog?.notes || []).filter(Boolean)[0] || null,
+  };
+})();
 
 // avoid restating recent posts — best-effort; a read failure here must never
 // block drafting, so any problem just means we draft without that context.
@@ -127,12 +130,16 @@ ${FEW_SHOT.slice(0, 6).map((l) => `"${l}"`).join('\n')}
 This post is GENERAL trading/investing/algo-trading knowledge and must stand completely on its own. Do NOT mention Mochion, "the machine", "the Referee", or any project-specific framing. No "we/our project" language, no self-promotion. Just genuinely useful, broadly-agreeable knowledge any trader, investor, or founder would find valuable — the kind of thing that's true whether or not the reader has ever heard of this account.
 `;
 
+  // pillar.mochion, NOT the mochionGrounding truthiness check — mochionGrounding
+  // is computed once per RUN (true if ANY of today's 3 pillars is Mochion's),
+  // but buildPrompt runs once per PILLAR. On a mixed day this must still only
+  // fire for the one Mochion pillar, never for that day's general pillars.
   const grounding = pillar.mochion ? `
 today's grounding — real, use if it helps, don't force all of it in:
-- day ${day} of the public record${toHundred > 0 && toHundred <= 30 ? ` (${toHundred} days to day 100)` : ''}
-- this past week's shape: ${weekShape || 'not enough days yet'}
-${latestLogTitle ? `- most recent build-log entry: "${latestLogTitle}"` : ''}
-${devlogNote ? `- a real recent note from the workshop: "${devlogNote}"` : ''}
+- day ${day} of the public record${mochionGrounding.toHundred > 0 && mochionGrounding.toHundred <= 30 ? ` (${mochionGrounding.toHundred} days to day 100)` : ''}
+- this past week's shape: ${mochionGrounding.weekShape || 'not enough days yet'}
+${mochionGrounding.latestLogTitle ? `- most recent build-log entry: "${mochionGrounding.latestLogTitle}"` : ''}
+${mochionGrounding.devlogNote ? `- a real recent note from the workshop: "${mochionGrounding.devlogNote}"` : ''}
 ` : '';
 
   return `You are drafting ONE X (Twitter) post for an account that mostly teaches broad, general trading/investing/algo-trading knowledge. It also build-in-publics a small crypto trading project called Mochion, but that is NOT today's topic unless stated below.

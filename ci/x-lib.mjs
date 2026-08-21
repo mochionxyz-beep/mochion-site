@@ -19,12 +19,6 @@ export function creds(env = process.env) {
   return c;
 }
 
-// Read a JSON file relative to the SITE ROOT (one level up from ci/), null
-// on any failure (missing file, bad JSON) — never throws. Callers live in
-// ci/, same directory as this module, so '../' + p resolves identically
-// whether computed from the caller's import.meta.url or from here.
-export const readJson = (p) => { try { return JSON.parse(readFileSync(new URL('../' + p, import.meta.url), 'utf8')); } catch { return null; } };
-
 // ---- OAuth 1.0a signing ----------------------------------------------------
 const pct = (s) => encodeURIComponent(s).replace(/[!'()*]/g, (ch) => '%' + ch.charCodeAt(0).toString(16).toUpperCase());
 function authHeader(c, method, url, extraParams = {}) {

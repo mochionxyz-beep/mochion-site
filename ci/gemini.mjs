@@ -18,16 +18,22 @@
 //
 // candidateCount > 1 is NOT supported on this model/tier — confirmed live
 // (400 INVALID_ARGUMENT "Multiple candidates is not enabled for this
-// model"). generate() therefore always requests exactly one candidate;
-// callers needing several (draft-posts.mjs's pillars, ops/reply.mjs's
-// two-reply-drafts) call it multiple times — see draft-posts.mjs's
-// Promise.all over pillars for how that's done concurrently.
+// model"). generate() therefore always requests exactly one candidate.
+// draft-posts.mjs needs 3 (one per pillar) and gets them by calling
+// generate() 3 times concurrently via Promise.all; ops/reply.mjs needs 2
+// but gets both from a SINGLE call by asking the model for two REPLY:
+// lines in one completion (see its buildPrompt) — not a second call.
 
 const MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
 const TIMEOUT_MS = 20_000;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function call(apiKey, prompt, { temperature = 0.9, maxOutputTokens = 200 } = {}, tries = 3) {
+  // caught here, not left as a silent no-op: with tries <= 0 the loop below
+  // never runs, and without this the function would resolve to undefined
+  // instead of failing loudly — a caller misconfiguring the retry count
+  // would look like a Gemini outage, not a bug in the caller.
+  if (tries < 1) throw new Error(`gemini: tries must be >= 1, got ${tries}`);
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`;
   const body = JSON.stringify({
     contents: [{ parts: [{ text: prompt }] }],

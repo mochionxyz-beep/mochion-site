@@ -7,8 +7,8 @@
 // Inputs (env): DIGEST_COMMITS = newline-joined `git log --since` subjects (site repo).
 // Reads data/public.json (tape) and data/devlog.json (box airlock, if present).
 
-import { readFileSync } from 'node:fs';
-import { tally } from './x-lib.mjs';
+import { weekTally } from './x-lib.mjs';
+import { readJson } from './file-utils.mjs';
 
 const commits = (process.env.DIGEST_COMMITS || '').split('\n').map((s) => s.trim()).filter(Boolean);
 
@@ -16,16 +16,13 @@ const commits = (process.env.DIGEST_COMMITS || '').split('\n').map((s) => s.trim
 const NOISE = /^(data: |verify: |metrics:|Merge |CI: fix|Cache-bust)/i;
 const meaningful = commits.filter((s) => !NOISE.test(s));
 
-const read = (p) => { try { return JSON.parse(readFileSync(new URL('../' + p, import.meta.url), 'utf8')); } catch { return null; } };
-const d = read('data/public.json');
-const devlog = read('data/devlog.json');
+const d = readJson('data/public.json');
+const devlog = readJson('data/devlog.json');
 
 // tape week
 let tapeLine = '';
 if (d && d.status !== 'no_data' && d.equity_curve?.length >= 7) {
-  const week = d.equity_curve.slice(-7);
-  const prev = d.equity_curve[d.equity_curve.length - 8] ? (d.equity_curve[d.equity_curve.length - 8].close ?? d.equity_curve[d.equity_curve.length - 8].value) : 100;
-  const t = tally(week, prev);
+  const t = weekTally(d.equity_curve);
   const parts = []; if (t.green) parts.push(`${t.green} green`); if (t.red) parts.push(`${t.red} red`); if (t.flat) parts.push(`${t.flat} flat`);
   tapeLine = `The tape printed 7 days this week — ${parts.join(', ')} — up to day ${d.days_live}. Every one of them public.`;
 }
