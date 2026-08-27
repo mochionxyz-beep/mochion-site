@@ -169,7 +169,15 @@ async function draftOne(pillar) {
   for (let tryNum = 1; tryNum <= 2; tryNum++) {
     let text;
     try { text = await generate(buildPrompt(pillar), { temperature: 0.95 }); }
-    catch (e) { console.error(`draft-posts: [${pillar.id}] gemini failed (${e.message})`); return null; }
+    catch (e) {
+      // A transient provider blip (gemini.mjs already retried 3x internally
+      // and still failed — e.g. a real "high demand" 503) deserves the same
+      // second-attempt treatment as a guard rejection below, not less. Only
+      // bail immediately on the LAST try.
+      console.error(`draft-posts: [${pillar.id}] try ${tryNum} gemini failed (${e.message})`);
+      if (tryNum < 2) continue;
+      return null;
+    }
     if (!text) return null;   // no key — degrade to nothing, caller handles it
     text = text.trim().replace(/^["']|["']$/g, '');
     const g = check(text);
