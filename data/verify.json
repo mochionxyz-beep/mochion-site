@@ -4,21 +4,21 @@
     "name": "record-verify",
     "version": "0.1.0"
   },
-  "generated_at": "2026-08-28T11:34:52.503Z",
+  "generated_at": "2026-08-29T07:12:30.394Z",
   "verdict": "FAIL",
   "claims": {
     "append_only": "fail",
     "unbroken": "pass",
     "bounded": "fail",
-    "witnessed": "pass"
+    "witnessed": "unknown"
   },
   "stats": {
-    "days_published": 88,
+    "days_published": 89,
     "days_backfilled": 43,
-    "days_witnessed": 45
+    "days_witnessed": 46
   },
   "finding_counts": {
-    "error": 769,
+    "error": 770,
     "warn": 0,
     "note": 4,
     "unknown": 0
