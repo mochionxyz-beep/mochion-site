@@ -4,7 +4,7 @@
     "name": "record-verify",
     "version": "0.1.0"
   },
-  "generated_at": "2026-09-03T04:47:55.815Z",
+  "generated_at": "2026-09-04T04:53:39.045Z",
   "verdict": "FAIL",
   "claims": {
     "append_only": "fail",
@@ -13,12 +13,12 @@
     "witnessed": "pass"
   },
   "stats": {
-    "days_published": 94,
+    "days_published": 95,
     "days_backfilled": 43,
-    "days_witnessed": 51
+    "days_witnessed": 52
   },
   "finding_counts": {
-    "error": 775,
+    "error": 776,
     "warn": 0,
     "note": 4,
     "unknown": 0
