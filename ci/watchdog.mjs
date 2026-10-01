@@ -3,10 +3,14 @@
 // Fetches the LIVE site (not the repo) and fails loudly if the record went stale
 // or the share card broke, so a dead box cron / failed push / broken deploy can't
 // pass silently. A red run emails the account (repo issues are off).
-// Zero deps. Env: MAX_AGE_H (default 26), MIN_CARD_KB (default 20).
+// Zero deps. Env: MAX_AGE_H (default 23), MIN_CARD_KB (default 20).
 
 const SITE = 'https://mochion.xyz';
-const MAX_AGE_H = Number(process.env.MAX_AGE_H || 26);
+// generated_at is day-zeroed (00:00 UTC of the push day): a healthy record
+// reads t hours old at check time t, a single MISSED day reads 24+t. So the
+// limit must stay under 24 — the old 26 let a one-day gap pass at the
+// scheduled 01:20 (25.3h), caught only when GitHub ran the cron hours late.
+const MAX_AGE_H = Number(process.env.MAX_AGE_H || 23);
 const MIN_CARD_KB = Number(process.env.MIN_CARD_KB || 20);
 const bust = 'cb=' + Date.now();
 const problems = [];
