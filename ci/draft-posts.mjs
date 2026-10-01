@@ -42,7 +42,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { creds, whoAmI, myRecentTweets, isReply, weekTally } from './x-lib.mjs';
 import { readJson, readText } from './file-utils.mjs';
 import { generate } from './gemini.mjs';
-import { check } from './guard.mjs';
+import { check, identityConfigured } from './guard.mjs';
 import { CAST, CATCHPHRASES, VOICE_RULES, FEW_SHOT, BANNED_CTAS } from './voice.mjs';
 import { parseLogEntries, sortEntriesDesc } from './log-entries.mjs';
 import { notify } from './notify.mjs';
@@ -83,6 +83,7 @@ if (!process.env.GEMINI_API_KEY) {
   // instead of paying for them and discarding the result.
   console.error('draft-posts: GEMINI_API_KEY absent — nothing to draft'); process.exit(3);
 }
+if (!identityConfigured()) console.error('draft-posts: WARNING — IDENTITY_DENYLIST unset, identity rule skipped');
 
 const day = d.days_live;
 const pillarsToday = todaysPillars(day);

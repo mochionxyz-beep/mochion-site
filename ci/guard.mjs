@@ -5,9 +5,8 @@
 //
 // This exists because draft-dispatch.mjs's whole design was "no LLM, so voice
 // is controlled by construction" (see its header comment). Once an LLM is in
-// the loop that guarantee is gone — this is what replaces it. Same posture as
-// the pre-push identity grep documented in project memory: same regex, same
-// "zero matches expected, non-zero blocks" philosophy, just automated.
+// the loop that guarantee is gone — this is what replaces it: "zero matches
+// expected, non-zero blocks", automated.
 //
 //   node --test ci/*.test.mjs
 
@@ -31,9 +30,11 @@ const RE_CTA = new RegExp('\\b(' + BANNED_CTAS.join('|') + ')\\b', 'i');
 const RE_FORWARD_PROMISE = /\b(will|gonna|going to|expect(s|ed)? to)\b[^.!?]{0,40}\b(recover|bounce|rebound|moon)\b/i;
 const RE_PROMISE_PHRASES = /\b(back to green soon|bounce back|guaranteed?|to the moon|moon soon|can't lose|risk-free)\b/i;
 
-// Mirrors the project's own pre-push identity grep exactly (see memory:
-// "identity grep: grep -RniE 'haufung|hayden|tang|htca' site/ → zero").
-const RE_IDENTITY = /haufung|hayden|tang|htca/i;
+// Identity deny-patterns are injected at runtime (the IDENTITY_DENYLIST
+// Actions secret in CI, the operator's env locally) so they never live in
+// this public file. Read per call, not at import, so tests can set it.
+export const identityConfigured = () => Boolean(process.env.IDENTITY_DENYLIST?.trim());
+const identityRe = () => new RegExp(process.env.IDENTITY_DENYLIST.trim(), 'i');
 
 const RE_LOCAL_TIME = /\bhere in\b|\blocal time\b|\bmy (city|town|neighbou?rhood|country|state|province)\b|\b(EST|EDT|PST|PDT|CST|CDT|MST|MDT|BST|CET|CEST|JST|IST)\b/;
 const RE_WEATHER = /\b(sunny out|raining|it'?s raining|snowing|it'?s snowing|cloudy today|humid out|heatwave)\b/i;
@@ -82,7 +83,7 @@ export function check(text) {
 
   if (RE_FORWARD_PROMISE.test(text) || RE_PROMISE_PHRASES.test(text)) add('forward-promise', 'implies future performance');
 
-  if (RE_IDENTITY.test(text)) add('identity-leak', 'matches the pre-push identity grep pattern');
+  if (identityConfigured() && identityRe().test(text)) add('identity-leak', 'matches the identity denylist');
 
   if (RE_LOCAL_TIME.test(text)) add('anonymity', 'local-time / location tell');
   if (RE_WEATHER.test(text)) add('anonymity', 'weather chatter');
@@ -94,6 +95,7 @@ export function check(text) {
   if (text.length > MAX_LEN) add('length', `${text.length} chars > ${MAX_LEN}`);
 
   const warnings = [];
+  if (!identityConfigured()) warnings.push('IDENTITY_DENYLIST unset — identity rule skipped');
   for (const re of AI_CLICHES) if (re.test(text)) warnings.push(`generic phrasing: matches ${re}`);
 
   return { ok: violations.length === 0, violations, warnings };

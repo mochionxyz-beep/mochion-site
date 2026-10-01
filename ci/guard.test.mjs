@@ -12,6 +12,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { check } from './guard.mjs';
 
+// a stand-in denylist: the real patterns are a secret (see guard.mjs), and
+// what's under test is the mechanism, not the operator's actual strings
+process.env.IDENTITY_DENYLIST = 'zzplaceholder|qqhandle';
+
 const rejects = (text, ruleSubstr) => {
   const r = check(text);
   assert.equal(r.ok, false, `expected "${text}" to be rejected`);
@@ -79,9 +83,17 @@ test('a plain statement using the word "recover" with no promise attached is fin
   passes('the referee watches for a strategy that stops working and benches it before it can lose much.');
 });
 
-test('REGRESSION: identity leak mirrors the pre-push grep exactly', () => {
-  rejects('written by hayden, an engineer.', 'identity-leak');
-  rejects('find me at haufung80 elsewhere.', 'identity-leak');
+test('REGRESSION: identity leak — any denylist match is rejected, case-insensitively', () => {
+  rejects('written by zzPlaceholder, an engineer.', 'identity-leak');
+  rejects('find me at qqhandle80 elsewhere.', 'identity-leak');
+});
+test('identity denylist unset: the rule is skipped LOUDLY (a warning), never silently', () => {
+  const saved = process.env.IDENTITY_DENYLIST;
+  delete process.env.IDENTITY_DENYLIST;
+  try {
+    const r = check('day 90. same machine, same rules, same tape.');
+    assert.ok(r.warnings.some((w) => w.includes('IDENTITY_DENYLIST')), `expected an unset-denylist warning, got: ${JSON.stringify(r.warnings)}`);
+  } finally { process.env.IDENTITY_DENYLIST = saved; }
 });
 
 test('anonymity tells: local time and weather chatter', () => {
