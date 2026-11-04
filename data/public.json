@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-11-03T00:00:00+00:00",
+  "generated_at": "2026-11-04T00:00:00+00:00",
   "since": "2026-06-01",
-  "as_of": "2026-11-02",
-  "days_live": 155,
+  "as_of": "2026-11-03",
+  "days_live": 156,
   "basis": {
     "pnl": "total account P&L, marked-to-market (realized + unrealized, net of fees)",
     "scope": "portfolio (aggregate)",
@@ -12,9 +12,9 @@
     "note": "no absolute capital / per-strategy / per-trade detail is published. curve is indexed to 100 at 'since'; earlier snapshots are excluded when a cutoff is set. sharpe is annualized from daily returns."
   },
   "summary": {
-    "cumulative_return_pct": 20.36,
+    "cumulative_return_pct": 20.05,
     "max_drawdown_pct": -7.62,
-    "sharpe": 2.0,
+    "sharpe": 1.96,
     "best_day_pct": 8.23,
     "worst_day_pct": -2.32
   },
@@ -1258,6 +1258,14 @@
       "low": 120.3411,
       "close": 120.3649,
       "value": 120.3649
+    },
+    {
+      "date": "2026-11-03",
+      "open": 120.4083,
+      "high": 120.4906,
+      "low": 120.0348,
+      "close": 120.0484,
+      "value": 120.0484
     }
   ],
   "monthly_returns_pct": [
@@ -1283,7 +1291,7 @@
     },
     {
       "month": "2026-11",
-      "return_pct": -0.24
+      "return_pct": -0.55
     }
   ],
   "data_quality": {
