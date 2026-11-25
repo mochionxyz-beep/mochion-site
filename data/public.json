@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-11-24T00:00:00+00:00",
+  "generated_at": "2026-11-25T00:00:00+00:00",
   "since": "2026-06-01",
-  "as_of": "2026-11-23",
-  "days_live": 176,
+  "as_of": "2026-11-24",
+  "days_live": 177,
   "basis": {
     "pnl": "total account P&L, marked-to-market (realized + unrealized, net of fees)",
     "scope": "portfolio (aggregate)",
@@ -1424,6 +1424,14 @@
       "open": 121.5733,
       "high": 122.4687,
       "low": 121.3708,
+      "close": 121.7366,
+      "value": 121.7366
+    },
+    {
+      "date": "2026-11-24",
+      "open": 121.7366,
+      "high": 121.7366,
+      "low": 121.7366,
       "close": 121.7366,
       "value": 121.7366
     }
